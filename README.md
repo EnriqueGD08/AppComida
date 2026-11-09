@@ -72,7 +72,7 @@ swift test
 ## Limitaciones
 
 - Sin sincronización con iCloud (requiere una cuenta de desarrollador de pago).
-- Con una cuenta gratuita de Apple, la app instalada en un iPhone con Xcode caduca a los 7 días y hay que reinstalarla; los datos se conservan.
+- Con una cuenta gratuita de Apple, la app instalada en un iPhone con Xcode caduca a los 7 días y hay que reinstalarla; los datos se conservan. La carpeta [`scripts/`](scripts) incluye una reinstalación automática para macOS (`reinstalar-iphone.sh` y una tarea de `launchd`) que renueva el plazo mientras el Mac y el iPhone estén en la misma wifi.
 
 ## Licencia
 
