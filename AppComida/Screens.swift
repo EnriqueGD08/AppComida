@@ -1,7 +1,19 @@
+//
+//  Screens.swift
+//  AppComida
+//
+//  Autor: Enrique Gómez Díaz
+//  Mail: enriquegd2004@gmail.com
+//  Date: 2026-11-05
+//  Plataforma: iOS · Swift / SwiftUI
+//  Descripción: Pantallas principales de la interfaz: comidas, detalle de comida, plan semanal, ingredientes, lista de la compra y selector de ingredientes con búsqueda.
+//
+
 import SwiftUI
 
 // MARK: - Comidas
 
+/// Pestaña "Comidas": tarjeta del objetivo diario, botón para generar el menú y listado de comidas por franja con búsqueda por nombre.
 struct MealsTabView: View {
     @Binding var goal: Int
     let meals: [Meal]
@@ -84,6 +96,11 @@ struct MealsTabView: View {
         .animation(.snappy, value: goal)
     }
 
+    /// Botón circular para subir o bajar el objetivo calórico.
+    /// - Parameters:
+    ///   - systemName: Nombre del símbolo SF.
+    ///   - action: Acción al pulsarlo.
+    /// - Returns: El botón.
     private func stepButton(_ systemName: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
@@ -95,6 +112,9 @@ struct MealsTabView: View {
         .buttonStyle(.plain)
     }
 
+    /// Sección con las comidas de una franja; se omite si hay una búsqueda sin coincidencias en ella.
+    /// - Parameter slot: Franja a mostrar.
+    /// - Returns: La sección completa.
     private func slotSection(_ slot: MealSlot) -> some View {
         let slotMeals = (isSearching ? filteredMeals : meals).filter { $0.mealSlots.contains(slot) }
         if isSearching && slotMeals.isEmpty { return AnyView(EmptyView()) }
@@ -122,6 +142,7 @@ struct MealsTabView: View {
     }
 }
 
+/// Fila de una comida: icono de franja, nombre, ingredientes, raciones y calorías por ración.
 private struct MealRow: View {
     let meal: Meal
     let slot: MealSlot
@@ -151,6 +172,7 @@ private struct MealRow: View {
 
 // MARK: - Detalle
 
+/// Detalle de una comida: cabecera, macronutrientes, ingredientes y pasos de preparación.
 struct MealDetailView: View {
     let meal: Meal
     let onEdit: () -> Void
@@ -220,6 +242,12 @@ struct MealDetailView: View {
         }
     }
 
+    /// Casilla con el valor de un macronutriente.
+    /// - Parameters:
+    ///   - title: Nombre del nutriente.
+    ///   - value: Gramos.
+    ///   - color: Color del valor.
+    /// - Returns: La casilla.
     private func macro(_ title: String, _ value: Double, _ color: Color) -> some View {
         VStack(spacing: 4) {
             Text("\(value.formatted()) g")
@@ -279,6 +307,7 @@ struct MealDetailView: View {
 
 // MARK: - Plan
 
+/// Pestaña "Plan": un bloque por día con sus comidas y las calorías totales frente al objetivo.
 struct PlanTabView: View {
     let plan: WeeklyPlan?
     let meals: [Meal]
@@ -336,6 +365,11 @@ struct PlanTabView: View {
         }
     }
 
+    /// Tarjeta de un día del plan. Las calorías se marcan en verde si están a 150 kcal o menos del objetivo y en naranja si no.
+    /// - Parameters:
+    ///   - date: Día a mostrar.
+    ///   - planned: Comidas planificadas de ese día.
+    /// - Returns: La tarjeta del día.
     private func dayCard(_ date: Date, _ planned: [PlannedMeal]) -> some View {
         let resolved = planned.compactMap { item in
             meals.first { $0.id == item.mealID }.map { (item, $0) }
@@ -395,6 +429,7 @@ struct PlanTabView: View {
 
 // MARK: - Ingredientes
 
+/// Pestaña "Ingredientes": catálogo con búsqueda por nombre y acciones de editar y eliminar.
 struct IngredientsTabView: View {
     let ingredients: [CatalogIngredient]
     let onNew: () -> Void
@@ -459,6 +494,9 @@ struct IngredientsTabView: View {
 
 // MARK: - Lista de la compra
 
+/// Pestaña "Compra": lista de los ingredientes de la semana con casillas para marcar lo comprado.
+///
+/// Las casillas marcadas se guardan en `AppStorage` asociadas a la semana del plan.
 struct ShoppingTabView: View {
     let items: [ShoppingItem]
     let weekKey: String
@@ -469,9 +507,17 @@ struct ShoppingTabView: View {
         Set(checkedRaw.split(separator: "\n").map(String.init))
     }
 
+    /// Clave con la que se guarda que un producto está marcado.
+    /// - Parameter item: Producto.
+    /// - Returns: Clave única que combina la semana y el producto.
     private func storageKey(_ item: ShoppingItem) -> String { "\(weekKey)|\(item.id)" }
+    /// Indica si un producto está marcado como comprado.
+    /// - Parameter item: Producto.
+    /// - Returns: `true` si está marcado.
     private func isChecked(_ item: ShoppingItem) -> Bool { checked.contains(storageKey(item)) }
 
+    /// Marca o desmarca un producto.
+    /// - Parameter item: Producto a cambiar.
     private func toggle(_ item: ShoppingItem) {
         var current = checked
         let key = storageKey(item)
@@ -479,6 +525,7 @@ struct ShoppingTabView: View {
         checkedRaw = current.sorted().joined(separator: "\n")
     }
 
+    /// Desmarca todos los productos de la semana actual.
     private func resetChecks() {
         let prefix = "\(weekKey)|"
         checkedRaw = checked.filter { !$0.hasPrefix(prefix) }.sorted().joined(separator: "\n")
@@ -553,6 +600,9 @@ struct ShoppingTabView: View {
         .padding(.bottom, 6)
     }
 
+    /// Fila de un producto con su casilla, nombre y cantidad.
+    /// - Parameter item: Producto a mostrar.
+    /// - Returns: La fila pulsable.
     private func row(_ item: ShoppingItem) -> some View {
         let done = isChecked(item)
         return Button {
@@ -582,6 +632,7 @@ struct ShoppingTabView: View {
 
 // MARK: - Selector de ingredientes con búsqueda
 
+/// Selector de ingredientes del catálogo con búsqueda por nombre. Se usa tanto en pantalla completa como dentro de una hoja.
 struct IngredientPickerView: View {
     @Environment(\.dismiss) private var dismiss
     let ingredients: [CatalogIngredient]

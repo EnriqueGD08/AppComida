@@ -1,3 +1,14 @@
+//
+//  ShoppingList.swift
+//  AppComida
+//
+//  Autor: Enrique Gómez Díaz
+//  Mail: enriquegd2004@gmail.com
+//  Date: 2026-11-05
+//  Plataforma: iOS · Swift / SwiftUI
+//  Descripción: Lógica de la lista de la compra: suma los ingredientes de las comidas del plan semanal (nombre y cantidad total) normalizando unidades.
+//
+
 import Foundation
 
 /// Un producto de la lista de la compra con la cantidad total de la semana.
@@ -14,9 +25,15 @@ public struct ShoppingItem: Identifiable, Equatable, Sendable {
 /// receta se dividen entre sus raciones. Las cantidades con la misma unidad se suman
 /// (kg → g, l → ml) y las que no son compatibles se muestran juntas.
 public enum ShoppingListBuilder {
+    /// Construye la lista de la compra de un plan semanal.
+    /// - Parameters:
+    ///   - plan: Plan semanal del que se toman las comidas.
+    ///   - meals: Comidas disponibles, para resolver los ingredientes de cada una.
+    /// - Returns: Productos con su cantidad total, ordenados por nombre.
     public static func build(plan: WeeklyPlan, meals: [Meal]) -> [ShoppingItem] {
         let mealsByID = Dictionary(meals.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
+        /// Acumulador interno de un producto: sus totales por unidad y las cantidades sin número.
         struct Entry {
             var name: String
             var totals: [String: Double] = [:]
@@ -56,6 +73,9 @@ public enum ShoppingListBuilder {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
+    /// Convierte la lista en texto plano para compartirla.
+    /// - Parameter items: Productos de la lista.
+    /// - Returns: Un texto con un producto por línea.
     public static func plainText(for items: [ShoppingItem]) -> String {
         let lines = items.map { "• \($0.name): \($0.quantityText)" }
         return (["Lista de la compra"] + lines).joined(separator: "\n")
@@ -63,11 +83,19 @@ public enum ShoppingListBuilder {
 
     // MARK: - Parsing
 
+    /// Normaliza un nombre (sin mayúsculas ni tildes) para agrupar ingredientes equivalentes.
+    /// - Parameter name: Nombre original.
+    /// - Returns: El nombre normalizado.
     private static func normalized(_ name: String) -> String {
         name.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// Interpreta la cantidad de un ingrediente.
+    ///
+    /// Usa los gramos si están definidos; si no, lee el número y la unidad del texto (admite decimales con coma y fracciones) y convierte kg a g y l/cl a ml.
+    /// - Parameter ingredient: Ingrediente a interpretar.
+    /// - Returns: Cantidad y unidad normalizada, o `nil` si el texto no contiene una cantidad (por ejemplo "al gusto").
     static func parse(_ ingredient: Ingredient) -> (amount: Double, unit: String)? {
         if let grams = ingredient.grams, grams > 0 {
             return (grams, "g")
@@ -100,10 +128,18 @@ public enum ShoppingListBuilder {
 
     // MARK: - Formato
 
+    /// Formatea un número con un máximo de un decimal según el idioma del dispositivo.
+    /// - Parameter value: Número a formatear.
+    /// - Returns: El número como texto.
     private static func number(_ value: Double) -> String {
         value.formatted(.number.precision(.fractionLength(0...1)))
     }
 
+    /// Da formato legible a una cantidad: pasa a kg o l a partir de 1000 y redondea las unidades hacia arriba.
+    /// - Parameters:
+    ///   - amount: Cantidad total.
+    ///   - unit: Unidad normalizada ("g", "ml", "unidad" u otra).
+    /// - Returns: Texto como "1,2 kg" o "3 unidades".
     private static func format(_ amount: Double, unit: String) -> String {
         switch unit {
         case "g":

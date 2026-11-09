@@ -1,14 +1,38 @@
+//
+//  MenuGenerator.swift
+//  AppComida
+//
+//  Autor: Enrique Gómez Díaz
+//  Mail: enriquegd2004@gmail.com
+//  Date: 2026-10-12
+//  Plataforma: iOS · Swift / SwiftUI
+//  Descripción: Generador del menú semanal: elige para cada día una comida por franja intentando acercarse al objetivo calórico diario y repitiendo lo menos posible.
+//
+
 import Foundation
 
+/// Genera planes semanales ajustando las calorías diarias a un objetivo.
 public struct MenuGenerator: Sendable {
     public var calendar: Calendar
     public var tolerance: Int
 
+    /// Crea el generador.
+    /// - Parameters:
+    ///   - calendar: Calendario usado para calcular los días de la semana.
+    ///   - tolerance: Diferencia calórica máxima aceptable respecto al objetivo, en kcal.
     public init(calendar: Calendar = .current, tolerance: Int = 150) {
         self.calendar = calendar
         self.tolerance = tolerance
     }
 
+    /// Genera un plan de siete días con una comida por franja y día.
+    ///
+    /// Para cada día elige la combinación cuyas calorías por ración se acercan más al objetivo, prefiriendo comidas que aún no se hayan usado en la semana.
+    /// - Parameters:
+    ///   - start: Primer día de la semana.
+    ///   - meals: Comidas disponibles.
+    ///   - dailyGoal: Objetivo calórico diario en kcal.
+    /// - Returns: El plan generado, o un `GenerationError` si el objetivo no es válido, la fecha falla o falta alguna franja.
     public func generate(weekStarting start: Date, meals: [Meal], dailyGoal: Int) -> Result<WeeklyPlan, GenerationError> {
         guard dailyGoal > 0 else { return .failure(.invalidGoal) }
         guard MealSlot.allCases.allSatisfy({ slot in meals.contains { meal in meal.mealSlots.contains(slot) } }) else {
@@ -36,6 +60,14 @@ public struct MenuGenerator: Sendable {
         return .success(WeeklyPlan(weekStart: start, meals: planned))
     }
 
+    /// Busca la mejor combinación de una comida por franja para un día.
+    ///
+    /// Minimiza la diferencia con el objetivo y, a igualdad, el número de comidas repetidas en el mismo día.
+    /// - Parameters:
+    ///   - meals: Comidas disponibles.
+    ///   - selectedIDs: Comidas ya usadas en días anteriores, que se ordenan al final.
+    ///   - dailyGoal: Objetivo calórico diario en kcal.
+    /// - Returns: Las comidas elegidas en el orden de `MealSlot.allCases`, o `nil` si alguna franja no tiene candidatas.
     private func bestCombination(
         meals: [Meal],
         selectedIDs: Set<UUID>,
@@ -63,6 +95,11 @@ public struct MenuGenerator: Sendable {
         var bestRepeatedMeals = Int.max
         var current: [Meal] = []
 
+        /// Recorre recursivamente todas las combinaciones, una franja por nivel, guardando la mejor encontrada.
+        /// - Parameters:
+        ///   - slotIndex: Franja que se está eligiendo.
+        ///   - calories: Calorías acumuladas hasta ahora.
+        ///   - repeatedMeals: Comidas repetidas acumuladas hasta ahora.
         func search(slotIndex: Int, calories: Int, repeatedMeals: Int) {
             if slotIndex == candidates.count {
                 let difference = abs(calories - dailyGoal)
@@ -89,6 +126,7 @@ public struct MenuGenerator: Sendable {
     }
 }
 
+/// Motivos por los que no se puede generar un plan semanal.
 public enum GenerationError: Error, Equatable {
     case invalidGoal
     case invalidDate

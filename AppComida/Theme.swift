@@ -1,5 +1,17 @@
+//
+//  Theme.swift
+//  AppComida
+//
+//  Autor: Enrique Gómez Díaz
+//  Mail: enriquegd2004@gmail.com
+//  Date: 2026-11-05
+//  Plataforma: iOS · Swift / SwiftUI
+//  Descripción: Sistema de diseño: colores, degradados, iconos por franja y componentes visuales reutilizables (tarjetas, insignias, títulos de sección).
+//
+
 import SwiftUI
 
+/// Constantes de diseño compartidas: color de acento, radio de esquinas y degradado principal.
 enum Theme {
     static let accent = Color(red: 0.16, green: 0.60, blue: 0.42)
     static let cornerRadius: CGFloat = 20
@@ -11,6 +23,7 @@ enum Theme {
     )
 }
 
+/// Icono y color asociados a cada franja del día.
 extension MealSlot {
     var icon: String {
         switch self {
@@ -45,9 +58,13 @@ struct AppBackground: View {
     }
 }
 
+/// Estilo de tarjeta: fondo, esquinas redondeadas y sombra suave.
 private struct CardModifier: ViewModifier {
     let padding: CGFloat
 
+    /// Aplica el estilo de tarjeta al contenido.
+    /// - Parameter content: Vista a envolver.
+    /// - Returns: La vista con aspecto de tarjeta.
     func body(content: Content) -> some View {
         content
             .padding(padding)
@@ -60,7 +77,11 @@ private struct CardModifier: ViewModifier {
     }
 }
 
+/// Atajos de estilo para cualquier vista.
 extension View {
+    /// Presenta la vista como una tarjeta.
+    /// - Parameter padding: Margen interior en puntos.
+    /// - Returns: La vista con el estilo de tarjeta.
     func card(padding: CGFloat = 16) -> some View {
         modifier(CardModifier(padding: padding))
     }
@@ -81,6 +102,7 @@ struct IconBadge: View {
     }
 }
 
+/// Título de sección con icono opcional y texto secundario a la derecha.
 struct SectionTitle: View {
     let title: String
     var systemImage: String?
@@ -102,6 +124,7 @@ struct SectionTitle: View {
     }
 }
 
+/// Aviso de estado vacío con icono, título y mensaje.
 struct EmptyCard: View {
     let systemImage: String
     let title: String

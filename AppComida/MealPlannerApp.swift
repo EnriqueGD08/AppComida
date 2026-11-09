@@ -1,16 +1,33 @@
+//
+//  MealPlannerApp.swift
+//  AppComida
+//
+//  Autor: Enrique Gómez Díaz
+//  Mail: enriquegd2004@gmail.com
+//  Date: 2026-11-05
+//  Plataforma: iOS · Swift / SwiftUI
+//  Descripción: Punto de entrada de la app (`@main`), vista raíz con las pestañas, gestión del estado, copia de seguridad (exportar/importar) y editores de comidas e ingredientes.
+//
+
 import SwiftUI
 import UniformTypeIdentifiers
 
+/// Documento JSON que envuelve una `AppBackup` para exportarla e importarla con el selector de archivos.
 private struct AppBackupDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.json] }
     static var writableContentTypes: [UTType] { [.json] }
 
     let backup: AppBackup
 
+    /// Crea el documento a partir de una copia de seguridad.
+    /// - Parameter backup: Datos a exportar.
     init(backup: AppBackup) {
         self.backup = backup
     }
 
+    /// Lee una copia de seguridad desde un archivo.
+    /// - Parameter configuration: Configuración con el archivo leído.
+    /// - Throws: Un error si el archivo está vacío o no es una copia válida.
     init(configuration: ReadConfiguration) throws {
         guard let data = configuration.file.regularFileContents else {
             throw CocoaError(.fileReadCorruptFile)
@@ -18,6 +35,10 @@ private struct AppBackupDocument: FileDocument {
         backup = try JSONDecoder().decode(AppBackup.self, from: data)
     }
 
+    /// Codifica la copia de seguridad como JSON legible para guardarla.
+    /// - Parameter configuration: Configuración de escritura.
+    /// - Returns: El archivo listo para guardar.
+    /// - Throws: Un error si falla la codificación.
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -25,6 +46,7 @@ private struct AppBackupDocument: FileDocument {
     }
 }
 
+/// Aplicación principal: muestra `ContentView` y aplica el tema (claro, oscuro o del sistema) elegido en ajustes.
 @main
 struct MealPlannerApp: App {
     @AppStorage("appearance") private var appearance = Appearance.system.rawValue
@@ -37,6 +59,7 @@ struct MealPlannerApp: App {
     }
 }
 
+/// Vista raíz. Mantiene el estado de comidas, ingredientes, objetivo y plan, lo persiste con `FileMealStore` y reparte la información entre las pestañas.
 struct ContentView: View {
     private let store = FileMealStore()
     @AppStorage("appearance") private var appearance = Appearance.system.rawValue
@@ -60,6 +83,7 @@ struct ContentView: View {
         plan.map { ShoppingListBuilder.build(plan: $0, meals: meals) } ?? []
     }
 
+    /// Crea la vista cargando del disco las comidas, el catálogo, el objetivo y el plan; si algo falla usa valores por defecto.
     init() {
         let store = FileMealStore()
         _meals = State(initialValue: (try? store.loadMeals()) ?? SampleMeals.all)
@@ -180,6 +204,7 @@ struct ContentView: View {
         }
     }
 
+    /// Genera y guarda el menú semanal para la semana actual con el objetivo diario. Avisa si algún día queda fuera de la tolerancia y cambia a la pestaña Plan.
     private func generatePlan() {
         let start = Calendar.current.dateInterval(of: .weekOfYear, for: .now)?.start ?? .now
         let generator = MenuGenerator()
@@ -210,6 +235,8 @@ struct ContentView: View {
         }
     }
 
+    /// Elimina un ingrediente del catálogo y guarda el cambio; si falla, muestra un mensaje.
+    /// - Parameter ingredient: Ingrediente a eliminar.
     private func deleteCatalogIngredient(_ ingredient: CatalogIngredient) {
         let updated = catalogIngredients.filter { $0.id != ingredient.id }
         do {
@@ -220,6 +247,9 @@ struct ContentView: View {
         }
     }
 
+    /// Añade una comida nueva o actualiza una existente y la guarda en disco.
+    /// - Parameter meal: Comida a guardar.
+    /// - Throws: Un error si no se puede guardar.
     private func saveMeal(_ meal: Meal) throws {
         var updatedMeals = meals
         if let index = updatedMeals.firstIndex(where: { $0.id == meal.id }) {
@@ -231,6 +261,9 @@ struct ContentView: View {
         meals = updatedMeals
     }
 
+    /// Añade un ingrediente nuevo al catálogo o actualiza uno existente y lo guarda en disco.
+    /// - Parameter ingredient: Ingrediente a guardar.
+    /// - Throws: Un error si no se puede guardar.
     private func saveCatalogIngredient(_ ingredient: CatalogIngredient) throws {
         var updatedIngredients = catalogIngredients
         if let index = updatedIngredients.firstIndex(where: { $0.id == ingredient.id }) {
@@ -242,6 +275,8 @@ struct ContentView: View {
         catalogIngredients = updatedIngredients
     }
 
+    /// Elimina una comida y sus apariciones en el plan semanal. Si no se puede guardar, restaura el estado anterior.
+    /// - Parameter meal: Comida a eliminar.
     private func deleteMeal(_ meal: Meal) {
         let previousMeals = meals
         let previousPlan = plan
@@ -268,11 +303,14 @@ struct ContentView: View {
         }
     }
 
+    /// Muestra una alerta con un mensaje.
+    /// - Parameter text: Texto a mostrar.
     private func presentMessage(_ text: String) {
         message = text
         isShowingMessage = true
     }
 
+    /// Prepara la copia de seguridad con los datos actuales y abre el selector para guardarla.
     private func exportBackup() {
         backupDocument = AppBackupDocument(
             backup: AppBackup(
@@ -285,6 +323,8 @@ struct ContentView: View {
         isExportingBackup = true
     }
 
+    /// Importa una copia de seguridad: valida versión y objetivo, reemplaza comidas, ingredientes, objetivo y plan en disco y actualiza la interfaz.
+    /// - Parameter result: Resultado del selector de archivos con la URL elegida.
     private func importBackup(_ result: Result<[URL], Error>) {
         do {
             let urls = try result.get()
@@ -326,10 +366,12 @@ struct ContentView: View {
     }
 }
 
+/// Pestañas de la barra inferior.
 private enum AppTab: Hashable {
     case meals, plan, shopping, ingredients, settings
 }
 
+/// Errores al importar una copia de seguridad.
 private enum BackupError: LocalizedError {
     case unsupportedVersion(Int)
     case invalidData
@@ -344,6 +386,7 @@ private enum BackupError: LocalizedError {
     }
 }
 
+/// Tema visual elegido por el usuario: automático, claro u oscuro.
 private enum Appearance: String, CaseIterable, Identifiable {
     case system, light, dark
 
@@ -366,6 +409,7 @@ private enum Appearance: String, CaseIterable, Identifiable {
     }
 }
 
+/// Pantalla de ajustes: tema, información de sincronización y copia de seguridad.
 private struct SettingsView: View {
     @Binding var appearance: String
     let onExport: () -> Void
@@ -417,6 +461,7 @@ private struct SettingsView: View {
     }
 }
 
+/// Modo del editor de comidas: crear una nueva o editar una existente.
 private enum MealEditorMode: Identifiable {
     case new
     case edit(Meal)
@@ -441,6 +486,7 @@ private enum MealEditorMode: Identifiable {
     }
 }
 
+/// Modo del editor de ingredientes del catálogo: crear uno nuevo o editar uno existente.
 private enum CatalogEditorMode: Identifiable {
     case new
     case edit(CatalogIngredient)
@@ -460,6 +506,7 @@ private enum CatalogEditorMode: Identifiable {
     }
 }
 
+/// Formulario para crear o editar un ingrediente del catálogo.
 private struct CatalogIngredientEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var draft: CatalogIngredient
@@ -467,6 +514,10 @@ private struct CatalogIngredientEditorView: View {
     let onSave: (CatalogIngredient) throws -> Void
     @State private var errorMessage: String?
 
+    /// Crea el formulario.
+    /// - Parameters:
+    ///   - ingredient: Ingrediente a editar, o `nil` para crear uno nuevo.
+    ///   - onSave: Acción que guarda el ingrediente.
     init(ingredient: CatalogIngredient?, onSave: @escaping (CatalogIngredient) throws -> Void) {
         self.onSave = onSave
         isNew = ingredient == nil
@@ -505,6 +556,7 @@ private struct CatalogIngredientEditorView: View {
         }
     }
 
+    /// Valida el nombre y las calorías, guarda el ingrediente y cierra el formulario; si algo falla, muestra el motivo.
     private func save() {
         draft.name = draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !draft.name.isEmpty else {
@@ -524,6 +576,7 @@ private struct CatalogIngredientEditorView: View {
     }
 }
 
+/// Formulario para crear o editar una comida: datos básicos, ingredientes del catálogo con búsqueda, información nutricional y pasos.
 private struct MealEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var draft: Meal
@@ -535,6 +588,12 @@ private struct MealEditorView: View {
     let onSaveCatalogIngredient: (CatalogIngredient) throws -> Void
     @State private var errorMessage: String?
 
+    /// Crea el editor.
+    /// - Parameters:
+    ///   - meal: Comida a editar, o `nil` para crear una nueva.
+    ///   - catalogIngredients: Ingredientes disponibles del catálogo.
+    ///   - onSave: Acción que guarda la comida.
+    ///   - onSaveCatalogIngredient: Acción que guarda un ingrediente nuevo del catálogo.
     init(
         meal: Meal?,
         catalogIngredients: [CatalogIngredient],
@@ -665,6 +724,9 @@ private struct MealEditorView: View {
         }
     }
 
+    /// Guarda un ingrediente nuevo del catálogo y lo añade a la comida en edición.
+    /// - Parameter ingredient: Ingrediente creado.
+    /// - Throws: Un error si no se puede guardar.
     private func saveCatalogIngredient(_ ingredient: CatalogIngredient) throws {
         try onSaveCatalogIngredient(ingredient)
         catalogIngredients.append(ingredient)
@@ -676,6 +738,7 @@ private struct MealEditorView: View {
         ))
     }
 
+    /// Valida el formulario (nombre, franjas, ingredientes, gramos, raciones y nutrición), calcula las calorías de la receta y la guarda; si algo falla, muestra el motivo.
     private func save() {
         draft.name = draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
         draft.ingredients = draft.ingredients.map {
@@ -748,6 +811,9 @@ private struct MealEditorView: View {
         }.rounded())
     }
 
+    /// Binding de los gramos de un ingrediente que usa 0 cuando no hay valor.
+    /// - Parameter ingredient: Ingrediente a editar.
+    /// - Returns: Un binding de lectura y escritura.
     private func gramsBinding(for ingredient: Binding<Ingredient>) -> Binding<Double> {
         Binding(
             get: { ingredient.wrappedValue.grams ?? 0 },
@@ -756,6 +822,7 @@ private struct MealEditorView: View {
     }
 }
 
+/// Mensajes en español para los errores de generación del menú.
 private extension GenerationError {
     var localizedDescription: String {
         switch self {
