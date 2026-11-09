@@ -4,926 +4,1566 @@
     {
       "calorieUnit": "per100Grams",
       "calories": 884,
+      "carbohydrates": 0,
+      "category": "pantry",
+      "fat": 100,
       "id": "800DECF9-FB27-5F7A-88F9-8B63DAB523E4",
-      "name": "Aceite de girasol"
+      "name": "Aceite de girasol",
+      "protein": 0
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 822,
+      "carbohydrates": 6,
+      "category": "pantry",
+      "fat": 91,
       "id": "0650B7C4-1E26-5CC3-BB74-EFF11F05A263",
-      "name": "Aceite de oliva virgen extra (Mercadona)"
+      "name": "Aceite de oliva virgen extra (Mercadona)",
+      "protein": 0
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 169,
+      "carbohydrates": 0,
+      "category": "pantry",
+      "fat": 17.7,
       "id": "79085A52-DFEE-5533-907C-51B982F54AAD",
-      "name": "Aceitunas verdes sin hueso (Mercadona)"
+      "name": "Aceitunas verdes sin hueso (Mercadona)",
+      "protein": 1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 19,
+      "carbohydrates": 3.7,
+      "category": "produce",
+      "fat": 0.2,
       "id": "04379838-B892-5A29-8487-92E5CFC4B8D0",
-      "name": "Acelgas"
+      "name": "Acelgas",
+      "protein": 1.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 160,
+      "carbohydrates": 8.5,
+      "category": "produce",
+      "fat": 14.7,
       "id": "6CDF17BF-5589-5ACA-A0BA-83860632D8D6",
-      "name": "Aguacate"
+      "name": "Aguacate",
+      "protein": 2,
+      "unitWeightGrams": 200
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 149,
+      "carbohydrates": 33,
+      "category": "produce",
+      "fat": 0.5,
       "id": "985E238E-1C0E-50E0-8DCB-E79E6E088F89",
-      "name": "Ajo"
+      "name": "Ajo",
+      "protein": 6.4
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 586,
+      "carbohydrates": 8.1,
+      "category": "nuts",
+      "fat": 48,
       "id": "C7D0B5E5-30CE-5729-9008-3347E8584476",
-      "name": "Almendra natural (Mercadona)"
+      "name": "Almendra natural (Mercadona)",
+      "protein": 24
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 83,
+      "carbohydrates": 10.7,
+      "category": "legumes",
+      "fat": 0.4,
       "id": "397FA7DF-4E6D-5033-93BA-CC4ED7A2E67F",
-      "name": "Alubia blanca cocida (Mercadona)"
+      "name": "Alubia blanca cocida (Mercadona)",
+      "protein": 5.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 333,
+      "carbohydrates": 60,
+      "category": "legumes",
+      "fat": 0.9,
       "id": "5C2A3272-2CF7-57B6-90FC-764ECFEF8B55",
-      "name": "Alubias blancas secas"
+      "name": "Alubias blancas secas",
+      "protein": 23
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 586,
+      "carbohydrates": 25,
+      "category": "nuts",
+      "fat": 46,
       "id": "55FFC506-801B-5910-AC4C-178943274B7D",
-      "name": "Anacardo natural (Mercadona)"
+      "name": "Anacardo natural (Mercadona)",
+      "protein": 19
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 16,
+      "carbohydrates": 3,
+      "category": "produce",
+      "fat": 0.2,
       "id": "3A749BBE-C3BF-5098-9C05-C3D1D42465BE",
-      "name": "Apio"
+      "name": "Apio",
+      "protein": 0.7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 355,
+      "carbohydrates": 78,
+      "category": "bakeryCereals",
+      "fat": 0.6,
       "id": "1DA14B5A-2ADA-5AEE-B3E0-279920F9D342",
-      "name": "Arroz basmati (Mercadona)"
+      "name": "Arroz basmati (Mercadona)",
+      "protein": 9
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 350,
+      "carbohydrates": 72,
+      "category": "bakeryCereals",
+      "fat": 2.8,
       "id": "07B4C9D9-BD55-5159-9A53-51BD160FB59C",
-      "name": "Arroz integral largo (Mercadona)"
+      "name": "Arroz integral largo (Mercadona)",
+      "protein": 7.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 344,
+      "carbohydrates": 75,
+      "category": "bakeryCereals",
+      "fat": 1,
       "id": "1757AB46-A804-5818-863B-C2CFC9D2F51F",
-      "name": "Arroz redondo (Mercadona)"
+      "name": "Arroz redondo (Mercadona)",
+      "protein": 8.2
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 345,
+      "carbohydrates": 76,
+      "category": "bakeryCereals",
+      "fat": 0.7,
       "id": "2F14E18C-50EE-5203-91D1-322D4FFF53B7",
-      "name": "Arroz vaporizado (Mercadona)"
+      "name": "Arroz vaporizado (Mercadona)",
+      "protein": 7.9
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 57,
+      "carbohydrates": 14,
+      "category": "produce",
+      "fat": 0.3,
       "id": "4A00F037-00EE-52C6-9F03-E9D27421632F",
-      "name": "Arándanos"
+      "name": "Arándanos",
+      "protein": 0.7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 99,
+      "carbohydrates": 0.9,
+      "category": "pantry",
+      "fat": 1.2,
       "id": "AFA0E3B2-516E-5E34-BC23-41691080BDC8",
-      "name": "Atún claro al natural (Mercadona)"
+      "name": "Atún claro al natural (Mercadona)",
+      "protein": 21
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 262,
+      "carbohydrates": 0.5,
+      "category": "pantry",
+      "fat": 20,
       "id": "0076B887-1D68-596A-A1F7-8CF38BAAB6FB",
-      "name": "Atún en aceite de girasol (Mercadona)"
+      "name": "Atún en aceite de girasol (Mercadona)",
+      "protein": 20
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 144,
+      "carbohydrates": 0,
+      "category": "pantry",
+      "fat": 4.9,
       "id": "FC371CAF-67DC-5F5F-83B0-185D01DE1B40",
-      "name": "Atún fresco"
+      "name": "Atún fresco",
+      "protein": 23.3
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 628,
+      "carbohydrates": 17,
+      "category": "nuts",
+      "fat": 61,
       "id": "F193CA0B-65A1-580E-ADA6-C20B860531FB",
-      "name": "Avellanas"
+      "name": "Avellanas",
+      "protein": 15
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 400,
+      "carbohydrates": 100,
+      "category": "pantry",
+      "fat": 0,
       "id": "CB5A8890-9BD9-5E90-ABFC-E398755238A4",
-      "name": "Azúcar blanco (Mercadona)"
+      "name": "Azúcar blanco (Mercadona)",
+      "protein": 0
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 82,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 0.7,
       "id": "C6AF7790-6F2C-5783-B105-67B9A7294289",
-      "name": "Bacalao fresco"
+      "name": "Bacalao fresco",
+      "protein": 18
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 86,
+      "carbohydrates": 20,
+      "category": "produce",
+      "fat": 0.1,
       "id": "B0D9B06E-9D06-5110-9294-39E35D00CFB4",
-      "name": "Batata"
+      "name": "Batata",
+      "protein": 1.6,
+      "unitWeightGrams": 200
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 16,
+      "carbohydrates": 0.3,
+      "category": "pantry",
+      "fat": 1.5,
       "id": "1FA2FDCE-5DAE-5E27-8A71-BE4FD73EB8DE",
-      "name": "Bebida de almendras 0% azúcar (Mercadona)"
+      "name": "Bebida de almendras 0% azúcar (Mercadona)",
+      "protein": 0.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 52,
+      "carbohydrates": 6.8,
+      "category": "pantry",
+      "fat": 2.5,
       "id": "F9EDED0C-6327-5A91-AE76-5BB3A331A6DF",
-      "name": "Bebida de avena con calcio (Mercadona)"
+      "name": "Bebida de avena con calcio (Mercadona)",
+      "protein": 0.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 32,
+      "carbohydrates": 0.6,
+      "category": "pantry",
+      "fat": 1.7,
       "id": "A8D1FEC1-0765-584A-BB17-4EA1C36A5DFE",
-      "name": "Bebida de soja 0% azúcar (Mercadona)"
+      "name": "Bebida de soja 0% azúcar (Mercadona)",
+      "protein": 3.1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 25,
+      "carbohydrates": 5.9,
+      "category": "produce",
+      "fat": 0.2,
       "id": "608CB433-9447-5935-A1A8-B1A8EFFAD482",
-      "name": "Berenjena"
+      "name": "Berenjena",
+      "protein": 1,
+      "unitWeightGrams": 250
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 34,
+      "carbohydrates": 6.6,
+      "category": "produce",
+      "fat": 0.4,
       "id": "5AADAFB5-CA72-5339-81ED-0851E26710F2",
-      "name": "Brócoli"
+      "name": "Brócoli",
+      "protein": 2.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 29,
+      "carbohydrates": 1.8,
+      "category": "produce",
+      "fat": 0.4,
       "id": "C44381E6-CA26-5C83-8C9E-D5DB8A9801E3",
-      "name": "Brócoli congelado (Mercadona)"
+      "name": "Brócoli congelado (Mercadona)",
+      "protein": 3
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 600,
+      "carbohydrates": 14,
+      "category": "nuts",
+      "fat": 48.1,
       "id": "8ED5EFDD-F83E-59EF-9425-8FDDE8213708",
-      "name": "Cacahuete frito con sal (Mercadona)"
+      "name": "Cacahuete frito con sal (Mercadona)",
+      "protein": 23
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 375,
+      "carbohydrates": 16.3,
+      "category": "pantry",
+      "fat": 16,
       "id": "8B8AEB95-9C7B-5DC7-BF9E-0FDD535BAFEC",
-      "name": "Cacao puro en polvo (Mercadona)"
+      "name": "Cacao puro en polvo (Mercadona)",
+      "protein": 25.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 17,
+      "carbohydrates": 3.1,
+      "category": "produce",
+      "fat": 0.3,
       "id": "A52F0430-B338-5587-A60D-ABD0E5D1E27B",
-      "name": "Calabacín"
+      "name": "Calabacín",
+      "protein": 1.2,
+      "unitWeightGrams": 250
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 26,
+      "carbohydrates": 6.5,
+      "category": "produce",
+      "fat": 0.1,
       "id": "B3FF802E-6419-5BC5-B889-66EECD226440",
-      "name": "Calabaza"
+      "name": "Calabaza",
+      "protein": 1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 92,
+      "carbohydrates": 3.1,
+      "category": "meatFish",
+      "fat": 1.4,
       "id": "55CC5FE7-E707-54B0-8988-CD9CFEF180E4",
-      "name": "Calamar"
+      "name": "Calamar",
+      "protein": 15.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 176,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 10,
       "id": "B8434EAE-189C-58D4-8F1C-2714D070702A",
-      "name": "Carne picada de ternera"
+      "name": "Carne picada de ternera",
+      "protein": 20
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 40,
+      "carbohydrates": 9.3,
+      "category": "produce",
+      "fat": 0.1,
       "id": "CE147637-3ADA-5035-9E70-4CBA1ED0BF21",
-      "name": "Cebolla"
+      "name": "Cebolla",
+      "protein": 1.1,
+      "unitWeightGrams": 150
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 373,
+      "carbohydrates": 75,
+      "category": "bakeryCereals",
+      "fat": 1.7,
       "id": "A10625CE-60E8-54F4-8B85-DE1A3A7FDFBA",
-      "name": "Cereales de trigo integral y arroz (Mercadona)"
+      "name": "Cereales de trigo integral y arroz (Mercadona)",
+      "protein": 10.3
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 63,
+      "carbohydrates": 16,
+      "category": "produce",
+      "fat": 0.2,
       "id": "2584AA01-4328-5179-AF12-5E772813789E",
-      "name": "Cerezas"
+      "name": "Cerezas",
+      "protein": 1.1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 22,
+      "carbohydrates": 3.3,
+      "category": "produce",
+      "fat": 0.3,
       "id": "BD05992A-52AF-5CE4-A9B9-EF32A443912A",
-      "name": "Champiñones"
+      "name": "Champiñones",
+      "protein": 3.1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 21,
+      "carbohydrates": 1.5,
+      "category": "produce",
+      "fat": 0.1,
       "id": "5896F300-5DA7-5F54-BD8C-F924F0F381D9",
-      "name": "Champiñones laminados (Mercadona)"
+      "name": "Champiñones laminados (Mercadona)",
+      "protein": 2.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 600,
+      "carbohydrates": 20,
+      "category": "pantry",
+      "fat": 49,
       "id": "CFB6816D-7DD1-5A6C-8ACD-E74682B4E3F4",
-      "name": "Chocolate negro 85% (Mercadona)"
+      "name": "Chocolate negro 85% (Mercadona)",
+      "protein": 12
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 341,
+      "carbohydrates": 2.7,
+      "category": "meatFish",
+      "fat": 26,
       "id": "B14BEFA4-2259-5DBF-8B9B-C7224E8B8A7B",
-      "name": "Chorizo en lonchas (Mercadona)"
+      "name": "Chorizo en lonchas (Mercadona)",
+      "protein": 24
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 52,
+      "carbohydrates": 0.7,
+      "category": "dairyEggs",
+      "fat": 0.2,
       "id": "AF1859D4-8CDF-5D2E-8A69-724904E0D4D2",
-      "name": "Clara de huevo"
+      "name": "Clara de huevo",
+      "protein": 10.9
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 25,
+      "carbohydrates": 5,
+      "category": "produce",
+      "fat": 0.3,
       "id": "05727FD9-F9A4-51FE-9A1F-AAB5F764E4BC",
-      "name": "Coliflor"
+      "name": "Coliflor",
+      "protein": 1.9
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 28,
+      "carbohydrates": 3.1,
+      "category": "produce",
+      "fat": 0.3,
       "id": "60857320-5AC5-5870-9A3A-9160B7A3AD0C",
-      "name": "Coliflor congelada (Mercadona)"
+      "name": "Coliflor congelada (Mercadona)",
+      "protein": 2.2
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 370,
+      "carbohydrates": 58,
+      "category": "bakeryCereals",
+      "fat": 6.5,
       "id": "A82B903C-671E-500D-84EB-F1D206DBBD2A",
-      "name": "Copos de avena (Mercadona)"
+      "name": "Copos de avena (Mercadona)",
+      "protein": 14
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 607,
+      "carbohydrates": 12,
+      "category": "nuts",
+      "fat": 46.7,
       "id": "D03C8F39-7C47-5972-8201-5C4D741E0243",
-      "name": "Crema de cacahuete 100% (Mercadona)"
+      "name": "Crema de cacahuete 100% (Mercadona)",
+      "protein": 30
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 346,
+      "carbohydrates": 69,
+      "category": "bakeryCereals",
+      "fat": 1.6,
       "id": "86955A16-5BAE-5E26-86E2-9FD7F0CD1704",
-      "name": "Cuscús (Mercadona)"
+      "name": "Cuscús (Mercadona)",
+      "protein": 12
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 288,
+      "carbohydrates": 66,
+      "category": "nuts",
+      "fat": 0.5,
       "id": "089DB837-A133-5282-B244-6339B2EBB5C1",
-      "name": "Dátiles (Mercadona)"
+      "name": "Dátiles (Mercadona)",
+      "protein": 1.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 345,
+      "carbohydrates": 62,
+      "category": "bakeryCereals",
+      "fat": 2.4,
       "id": "01E78633-4D8D-5F54-85A5-74F7E91AFE90",
-      "name": "Espaguetis integrales (Mercadona)"
+      "name": "Espaguetis integrales (Mercadona)",
+      "protein": 13.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 23,
+      "carbohydrates": 3.6,
+      "category": "produce",
+      "fat": 0.4,
       "id": "14F3E2BF-EAF7-5D16-BE05-0EFBC416BEFF",
-      "name": "Espinacas"
+      "name": "Espinacas",
+      "protein": 2.9
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 13,
+      "carbohydrates": 1.1,
+      "category": "pantry",
+      "fat": 0.5,
       "id": "66FDB195-21BE-561D-8CFC-4E234E2F91CF",
-      "name": "Espárragos blancos (Mercadona)"
+      "name": "Espárragos blancos (Mercadona)",
+      "protein": 1.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 20,
+      "carbohydrates": 3.9,
+      "category": "produce",
+      "fat": 0.1,
       "id": "1D662534-AF95-5C10-A72F-80EB2999EA8F",
-      "name": "Espárragos verdes"
+      "name": "Espárragos verdes",
+      "protein": 2.2
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 32,
+      "carbohydrates": 7.7,
+      "category": "produce",
+      "fat": 0.3,
       "id": "12B1BAB9-DFE3-52F2-8EB1-7D5F2184031D",
-      "name": "Fresas"
+      "name": "Fresas",
+      "protein": 0.7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 30,
+      "carbohydrates": 5.2,
+      "category": "produce",
+      "fat": 0,
       "id": "4EE408DC-B942-5DF4-88C7-CED2A1FE56A0",
-      "name": "Fresas congeladas (Mercadona)"
+      "name": "Fresas congeladas (Mercadona)",
+      "protein": 0.7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 443,
+      "carbohydrates": 71,
+      "category": "pantry",
+      "fat": 14,
       "id": "684D6294-03DF-565E-AE8A-08191E1151DF",
-      "name": "Galletas María (Mercadona)"
+      "name": "Galletas María (Mercadona)",
+      "protein": 7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 72,
+      "carbohydrates": 0.9,
+      "category": "meatFish",
+      "fat": 1,
       "id": "09D3F50A-19EC-5E88-9284-07B0A51F0E08",
-      "name": "Gamba pelada cruda congelada (Mercadona)"
+      "name": "Gamba pelada cruda congelada (Mercadona)",
+      "protein": 14.7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 90,
+      "carbohydrates": 9.5,
+      "category": "legumes",
+      "fat": 2.2,
       "id": "494549BD-96DF-5A1E-95EA-C9760F770C87",
-      "name": "Garbanzo cocido (Mercadona)"
+      "name": "Garbanzo cocido (Mercadona)",
+      "protein": 5.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 364,
+      "carbohydrates": 61,
+      "category": "legumes",
+      "fat": 6,
       "id": "17BF0BEE-C539-5B14-937C-9D977F737BE7",
-      "name": "Garbanzos secos"
+      "name": "Garbanzos secos",
+      "protein": 19
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 69,
+      "carbohydrates": 8.4,
+      "category": "pantry",
+      "fat": 0.8,
       "id": "5FCAB293-1A81-5257-AC91-ABB86945BD20",
-      "name": "Guisantes extra (Mercadona)"
+      "name": "Guisantes extra (Mercadona)",
+      "protein": 4.3
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 344,
+      "carbohydrates": 66,
+      "category": "bakeryCereals",
+      "fat": 1.3,
       "id": "7D20FA70-5853-5E20-BF6D-6516EA6EEF61",
-      "name": "Harina de fuerza (Mercadona)"
+      "name": "Harina de fuerza (Mercadona)",
+      "protein": 13
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 364,
+      "carbohydrates": 76,
+      "category": "bakeryCereals",
+      "fat": 1,
       "id": "88215A8D-A21F-53A4-B739-DC8E2A0B2E4C",
-      "name": "Harina de trigo"
+      "name": "Harina de trigo",
+      "protein": 10
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 143,
+      "carbohydrates": 0.7,
+      "category": "dairyEggs",
+      "fat": 9.5,
       "id": "284EFED2-166F-53F0-BCFC-1D75FB20C9E2",
-      "name": "Huevo entero"
+      "name": "Huevo entero",
+      "protein": 12.6,
+      "unitWeightGrams": 60
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 308,
+      "carbohydrates": 7.2,
+      "category": "pantry",
+      "fat": 26.8,
       "id": "F19DF95D-6BEA-5C07-A76E-CD967169C0D2",
-      "name": "Hummus de garbanzos (Mercadona)"
+      "name": "Hummus de garbanzos (Mercadona)",
+      "protein": 5.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 101,
+      "carbohydrates": 0.9,
+      "category": "meatFish",
+      "fat": 2.5,
       "id": "8D3E098F-49D1-54F2-8B11-08D6AA92DDC0",
-      "name": "Jamón cocido extra (Mercadona)"
+      "name": "Jamón cocido extra (Mercadona)",
+      "protein": 18.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 248,
+      "carbohydrates": 1,
+      "category": "meatFish",
+      "fat": 12.2,
       "id": "BF026281-7174-58EA-9F5C-A43392ACD3E7",
-      "name": "Jamón serrano en lonchas (Mercadona)"
+      "name": "Jamón serrano en lonchas (Mercadona)",
+      "protein": 33.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 31,
+      "carbohydrates": 7,
+      "category": "produce",
+      "fat": 0.2,
       "id": "2CB40B69-65BB-5612-9E67-4B9FCB67BC13",
-      "name": "Judías verdes"
+      "name": "Judías verdes",
+      "protein": 1.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 17,
+      "carbohydrates": 3,
+      "category": "produce",
+      "fat": 0,
       "id": "A8AD3A9F-7DCB-5CE2-AEB0-FD79E4B9297D",
-      "name": "Judías verdes planas (Mercadona)"
+      "name": "Judías verdes planas (Mercadona)",
+      "protein": 0.9
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 115,
+      "carbohydrates": 27,
+      "category": "pantry",
+      "fat": 0,
       "id": "7A65ED24-B056-5866-8AFE-5E315FA6B2FF",
-      "name": "Ketchup (Mercadona)"
+      "name": "Ketchup (Mercadona)",
+      "protein": 1.3
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 61,
+      "carbohydrates": 15,
+      "category": "produce",
+      "fat": 0.5,
       "id": "BA68C056-5E26-5C6B-805F-17E0144F4A8F",
-      "name": "Kiwi"
+      "name": "Kiwi",
+      "protein": 1.1,
+      "unitWeightGrams": 75
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 74,
+      "carbohydrates": 5.1,
+      "category": "dairyEggs",
+      "fat": 4.2,
       "id": "A2272A1C-F384-5C97-9C86-5DE589A60E01",
-      "name": "Kéfir natural (Mercadona)"
+      "name": "Kéfir natural (Mercadona)",
+      "protein": 3.9,
+      "unitWeightGrams": 125
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 34,
+      "carbohydrates": 4.7,
+      "category": "dairyEggs",
+      "fat": 0.2,
       "id": "80187CB0-7F5E-5B62-9878-06823E87FDD3",
-      "name": "Leche desnatada (Mercadona)"
+      "name": "Leche desnatada (Mercadona)",
+      "protein": 3.2
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 63,
+      "carbohydrates": 4.6,
+      "category": "dairyEggs",
+      "fat": 3.6,
       "id": "795E90B0-820D-5E36-B27C-5F6E3094332A",
-      "name": "Leche entera (Mercadona)"
+      "name": "Leche entera (Mercadona)",
+      "protein": 3.1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 46,
+      "carbohydrates": 4.8,
+      "category": "dairyEggs",
+      "fat": 1.6,
       "id": "5E73A381-D2F9-5A9D-947A-A2B5D75AFB75",
-      "name": "Leche semidesnatada (Mercadona)"
+      "name": "Leche semidesnatada (Mercadona)",
+      "protein": 3.1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 15,
+      "carbohydrates": 2.9,
+      "category": "produce",
+      "fat": 0.2,
       "id": "A1BF3813-237D-5CE0-9A85-29695839A006",
-      "name": "Lechuga"
+      "name": "Lechuga",
+      "protein": 1.4
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 320,
+      "carbohydrates": 48.1,
+      "category": "legumes",
+      "fat": 1.2,
       "id": "1E25D703-C337-5804-AC75-9F88ED2FDE24",
-      "name": "Lenteja pardina (seca) (Mercadona)"
+      "name": "Lenteja pardina (seca) (Mercadona)",
+      "protein": 24.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 29,
+      "carbohydrates": 9.3,
+      "category": "produce",
+      "fat": 0.3,
       "id": "E939EA9D-E226-5BB9-8D6A-67AAF87F3692",
-      "name": "Limón"
+      "name": "Limón",
+      "protein": 1.1,
+      "unitWeightGrams": 100
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 143,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 6,
       "id": "303DB768-922E-506E-BF1C-0B7F045169EE",
-      "name": "Lomo de cerdo"
+      "name": "Lomo de cerdo",
+      "protein": 21
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 97,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 2,
       "id": "BBA1279D-715F-5631-B97A-C3C2BAC7832B",
-      "name": "Lubina"
+      "name": "Lubina",
+      "protein": 18.4
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 345,
+      "carbohydrates": 62,
+      "category": "bakeryCereals",
+      "fat": 2.4,
       "id": "C30900AB-E954-5483-9689-7D5D1C32914B",
-      "name": "Macarrón integral (Mercadona)"
+      "name": "Macarrón integral (Mercadona)",
+      "protein": 13.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 53,
+      "carbohydrates": 13,
+      "category": "produce",
+      "fat": 0.3,
       "id": "1185AB0E-E0CB-5D04-899E-9E82F79D400A",
-      "name": "Mandarina"
+      "name": "Mandarina",
+      "protein": 0.8,
+      "unitWeightGrams": 80
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 60,
+      "carbohydrates": 15,
+      "category": "produce",
+      "fat": 0.4,
       "id": "CCBEC34A-4505-587D-A833-96381B56E0D3",
-      "name": "Mango"
+      "name": "Mango",
+      "protein": 0.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 730,
+      "carbohydrates": 0.8,
+      "category": "dairyEggs",
+      "fat": 82,
       "id": "3E60CBE8-8123-5B68-A38F-E3A23A444203",
-      "name": "Mantequilla sin sal (Mercadona)"
+      "name": "Mantequilla sin sal (Mercadona)",
+      "protein": 0.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 52,
+      "carbohydrates": 14,
+      "category": "produce",
+      "fat": 0.2,
       "id": "A0456E23-F8A6-50B9-BF65-DA70AB71DD6F",
-      "name": "Manzana"
+      "name": "Manzana",
+      "protein": 0.3,
+      "unitWeightGrams": 180
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 599,
+      "carbohydrates": 2.4,
+      "category": "pantry",
+      "fat": 65,
       "id": "E7EE0F0D-5502-59B9-BE02-DA8AD704F780",
-      "name": "Mayonesa (Mercadona)"
+      "name": "Mayonesa (Mercadona)",
+      "protein": 0.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 75,
+      "carbohydrates": 9.3,
+      "category": "pantry",
+      "fat": 2.3,
       "id": "8B9D31EC-86C0-5312-91F7-97B81FC7905F",
-      "name": "Maíz dulce en conserva (Mercadona)"
+      "name": "Maíz dulce en conserva (Mercadona)",
+      "protein": 2.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 86,
+      "carbohydrates": 3.7,
+      "category": "meatFish",
+      "fat": 2.2,
       "id": "75761CB7-3669-52AA-A397-A674202FD1B6",
-      "name": "Mejillones"
+      "name": "Mejillones",
+      "protein": 11.9
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 39,
+      "carbohydrates": 10,
+      "category": "produce",
+      "fat": 0.3,
       "id": "6B588376-D81C-5066-9857-56B4FA6058E1",
-      "name": "Melocotón"
+      "name": "Melocotón",
+      "protein": 0.9,
+      "unitWeightGrams": 150
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 34,
+      "carbohydrates": 8.2,
+      "category": "produce",
+      "fat": 0.2,
       "id": "E92932E8-EAD2-561C-B327-1C3AA947FC12",
-      "name": "Melón"
+      "name": "Melón",
+      "protein": 0.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 78,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 1,
       "id": "AE0C1FF3-7FDB-5B97-8906-3DABC842ECCC",
-      "name": "Merluza"
+      "name": "Merluza",
+      "protein": 16.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 194,
+      "carbohydrates": 47,
+      "category": "pantry",
+      "fat": 0,
       "id": "04EF0341-2DF0-505C-8D54-BDA08E370F6A",
-      "name": "Mermelada de fresa (Mercadona)"
+      "name": "Mermelada de fresa (Mercadona)",
+      "protein": 0.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 333,
+      "carbohydrates": 83,
+      "category": "pantry",
+      "fat": 0,
       "id": "94057AFA-701A-5B94-8DE6-8FA61CD70316",
-      "name": "Miel de naranjo (Mercadona)"
+      "name": "Miel de naranjo (Mercadona)",
+      "protein": 0.4
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 75,
+      "carbohydrates": 2.3,
+      "category": "pantry",
+      "fat": 5.3,
       "id": "5E52CDE7-DFA9-5728-B13A-F85922CB5D0C",
-      "name": "Mostaza (Mercadona)"
+      "name": "Mostaza (Mercadona)",
+      "protein": 3.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 247,
+      "carbohydrates": 0.5,
+      "category": "dairyEggs",
+      "fat": 21,
       "id": "86C39873-D990-507E-AD30-A5F3A92A6A4D",
-      "name": "Mozzarella fresca (Mercadona)"
+      "name": "Mozzarella fresca (Mercadona)",
+      "protein": 14
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 458,
+      "carbohydrates": 63,
+      "category": "bakeryCereals",
+      "fat": 18,
       "id": "950E177C-8B76-5BB2-9767-81B03C9A4C09",
-      "name": "Muesli crunchy con frutos secos (Mercadona)"
+      "name": "Muesli crunchy con frutos secos (Mercadona)",
+      "protein": 8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 121,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 4.1,
       "id": "EB695940-242C-5E58-BFD9-302A6749032E",
-      "name": "Muslo de pollo sin piel"
+      "name": "Muslo de pollo sin piel",
+      "protein": 19.7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 47,
+      "carbohydrates": 12,
+      "category": "produce",
+      "fat": 0.1,
       "id": "59BDF59F-2528-5641-9E42-B87ADA53A009",
-      "name": "Naranja"
+      "name": "Naranja",
+      "protein": 0.9,
+      "unitWeightGrams": 200
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 168,
+      "carbohydrates": 5.5,
+      "category": "dairyEggs",
+      "fat": 15,
       "id": "A96F11A8-2141-5AF7-8742-A497CAC05976",
-      "name": "Nata ligera para cocinar (Mercadona)"
+      "name": "Nata ligera para cocinar (Mercadona)",
+      "protein": 2.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 654,
+      "carbohydrates": 14,
+      "category": "nuts",
+      "fat": 65,
       "id": "45BD9020-6DC5-537F-8BC2-1BDCF3D56625",
-      "name": "Nueces"
+      "name": "Nueces",
+      "protein": 15
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 229,
+      "carbohydrates": 42,
+      "category": "bakeryCereals",
+      "fat": 2.1,
       "id": "E4367E16-B2E9-58CE-AA73-2E4EA4FA2D1D",
-      "name": "Pan de molde blanco sin corteza (Mercadona)"
+      "name": "Pan de molde blanco sin corteza (Mercadona)",
+      "protein": 8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 248,
+      "carbohydrates": 41,
+      "category": "bakeryCereals",
+      "fat": 3.8,
       "id": "48D5794C-A1A0-53FE-91FF-7765E2314E03",
-      "name": "Pan de molde integral (Mercadona)"
+      "name": "Pan de molde integral (Mercadona)",
+      "protein": 8.7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 369,
+      "carbohydrates": 78.1,
+      "category": "bakeryCereals",
+      "fat": 1.3,
       "id": "F26D2FF9-7D80-5D11-8CAC-AE72127FBA9C",
-      "name": "Pan rallado (Mercadona)"
+      "name": "Pan rallado (Mercadona)",
+      "protein": 9.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 488,
+      "carbohydrates": 2,
+      "category": "meatFish",
+      "fat": 46,
       "id": "961B9199-53E2-5EDB-BBEB-3A63B1460C55",
-      "name": "Panceta curada en lonchas (Mercadona)"
+      "name": "Panceta curada en lonchas (Mercadona)",
+      "protein": 16
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 299,
+      "carbohydrates": 79,
+      "category": "nuts",
+      "fat": 0.5,
       "id": "E5D9BA7B-0D22-5E84-9814-B034EEAE0B7A",
-      "name": "Pasas"
+      "name": "Pasas",
+      "protein": 3.1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 361,
+      "carbohydrates": 72,
+      "category": "bakeryCereals",
+      "fat": 1.5,
       "id": "DE14E65B-FD1D-5F2C-8A97-16DA2525E494",
-      "name": "Pasta penne rigate (Mercadona)"
+      "name": "Pasta penne rigate (Mercadona)",
+      "protein": 13
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 77,
+      "carbohydrates": 17,
+      "category": "produce",
+      "fat": 0.1,
       "id": "702D8BB7-F51F-5955-B376-78DAB8CFC423",
-      "name": "Patata"
+      "name": "Patata",
+      "protein": 2,
+      "unitWeightGrams": 150
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 76,
+      "carbohydrates": 1.3,
+      "category": "meatFish",
+      "fat": 0.5,
       "id": "B0E65BD6-3586-5901-8F3B-97A0F496CA0D",
-      "name": "Pechuga de pavo en lonchas (Mercadona)"
+      "name": "Pechuga de pavo en lonchas (Mercadona)",
+      "protein": 16.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 114,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 1.5,
       "id": "2B79D84E-DA00-5BA7-9D04-F0574CF19890",
-      "name": "Pechuga de pavo fresca"
+      "name": "Pechuga de pavo fresca",
+      "protein": 24
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 120,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 2.6,
       "id": "0036398F-C0B1-5485-A2C2-CEC0603DE18C",
-      "name": "Pechuga de pollo"
+      "name": "Pechuga de pollo",
+      "protein": 22.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 17,
+      "carbohydrates": 1.1,
+      "category": "pantry",
+      "fat": 0,
       "id": "2BA932F7-2687-5A9A-8638-866EE60BB45D",
-      "name": "Pepinillos (Mercadona)"
+      "name": "Pepinillos (Mercadona)",
+      "protein": 1.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 15,
+      "carbohydrates": 3.6,
+      "category": "produce",
+      "fat": 0.1,
       "id": "A27FFC3C-E935-58CF-950E-BB5A39C186BE",
-      "name": "Pepino"
+      "name": "Pepino",
+      "protein": 0.7,
+      "unitWeightGrams": 250
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 57,
+      "carbohydrates": 15,
+      "category": "produce",
+      "fat": 0.1,
       "id": "72946DAC-B75E-51AE-A59D-1C484B4433B5",
-      "name": "Pera"
+      "name": "Pera",
+      "protein": 0.4,
+      "unitWeightGrams": 180
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 31,
+      "carbohydrates": 6,
+      "category": "produce",
+      "fat": 0.3,
       "id": "E6DFD25D-1818-5CF0-8C58-DBBCC98743FC",
-      "name": "Pimiento rojo"
+      "name": "Pimiento rojo",
+      "protein": 1,
+      "unitWeightGrams": 150
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 20,
+      "carbohydrates": 4.6,
+      "category": "produce",
+      "fat": 0.2,
       "id": "111F57C2-15F7-55CF-A3D1-05733C85293D",
-      "name": "Pimiento verde"
+      "name": "Pimiento verde",
+      "protein": 0.9,
+      "unitWeightGrams": 150
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 616,
+      "carbohydrates": 10.6,
+      "category": "nuts",
+      "fat": 51.5,
       "id": "9BD49B91-3A68-5EE8-A5FC-6D56FCF25FC5",
-      "name": "Pistacho tostado con sal (Mercadona)"
+      "name": "Pistacho tostado con sal (Mercadona)",
+      "protein": 22.8
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 50,
+      "carbohydrates": 13,
+      "category": "produce",
+      "fat": 0.1,
       "id": "C4FDEF1F-21CC-5021-ADA3-FA04D60D92B9",
-      "name": "Piña"
+      "name": "Piña",
+      "protein": 0.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 89,
+      "carbohydrates": 23,
+      "category": "produce",
+      "fat": 0.3,
       "id": "B77C3190-983C-56D6-9C89-5EA16C8FD91E",
-      "name": "Plátano"
+      "name": "Plátano",
+      "protein": 1.1,
+      "unitWeightGrams": 120
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 400,
+      "carbohydrates": 8,
+      "category": "pantry",
+      "fat": 6,
       "id": "724519EF-E0F7-5FB8-B796-C7160F561921",
-      "name": "Proteína en polvo (whey)"
+      "name": "Proteína en polvo (whey)",
+      "protein": 80
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 61,
+      "carbohydrates": 14,
+      "category": "produce",
+      "fat": 0.3,
       "id": "8F5E58E8-50C8-5616-A818-37CD5DEC180F",
-      "name": "Puerro"
+      "name": "Puerro",
+      "protein": 1.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 349,
+      "carbohydrates": 74,
+      "category": "bakeryCereals",
+      "fat": 0.6,
       "id": "579586AB-7CDC-5CED-9E2C-7D8EDB8DC372",
-      "name": "Puré de patatas en copos (Mercadona)"
+      "name": "Puré de patatas en copos (Mercadona)",
+      "protein": 8.3
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 396,
+      "carbohydrates": 1.3,
+      "category": "dairyEggs",
+      "fat": 35,
       "id": "07801A66-531E-59E6-82F0-261776B5742B",
-      "name": "Queso en lonchas cremoso (Mercadona)"
+      "name": "Queso en lonchas cremoso (Mercadona)",
+      "protein": 19
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 264,
+      "carbohydrates": 4,
+      "category": "dairyEggs",
+      "fat": 21,
       "id": "A4EA654C-6BD3-59FA-A77F-A2E1B934EE16",
-      "name": "Queso feta"
+      "name": "Queso feta",
+      "protein": 14
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 150,
+      "carbohydrates": 3.7,
+      "category": "dairyEggs",
+      "fat": 10.4,
       "id": "4C18492B-B679-5C80-BCE6-95BA8667754A",
-      "name": "Queso fresco Burgos (Mercadona)"
+      "name": "Queso fresco Burgos (Mercadona)",
+      "protein": 10.3
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 431,
+      "carbohydrates": 4,
+      "category": "dairyEggs",
+      "fat": 29,
       "id": "381C31B5-4986-5659-818F-B5B2C5BBA12C",
-      "name": "Queso parmesano"
+      "name": "Queso parmesano",
+      "protein": 38
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 369,
+      "carbohydrates": 0.5,
+      "category": "dairyEggs",
+      "fat": 29,
       "id": "0975E998-AE6C-560C-9F37-14CEC5B6CA04",
-      "name": "Queso rallado emmental (Mercadona)"
+      "name": "Queso rallado emmental (Mercadona)",
+      "protein": 27
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 130,
+      "carbohydrates": 4.8,
+      "category": "dairyEggs",
+      "fat": 8.3,
       "id": "4F5D00D0-E522-5054-BCD1-03C72D927CF9",
-      "name": "Queso untable light (Mercadona)"
+      "name": "Queso untable light (Mercadona)",
+      "protein": 9
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 368,
+      "carbohydrates": 64,
+      "category": "bakeryCereals",
+      "fat": 6,
       "id": "CED58D33-4C69-5D6D-B275-D9AB63D53E3D",
-      "name": "Quinoa"
+      "name": "Quinoa",
+      "protein": 14
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 43,
+      "carbohydrates": 9.6,
+      "category": "produce",
+      "fat": 0.2,
       "id": "34792B36-C515-590C-A619-0D73A7D26A49",
-      "name": "Remolacha"
+      "name": "Remolacha",
+      "protein": 1.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 25,
+      "carbohydrates": 5.8,
+      "category": "meatFish",
+      "fat": 0.1,
       "id": "0628019C-950E-56F4-973E-BA4F39DBC4F6",
-      "name": "Repollo"
+      "name": "Repollo",
+      "protein": 1.3
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 139,
+      "carbohydrates": 5.4,
+      "category": "dairyEggs",
+      "fat": 11.6,
       "id": "3A2478D3-8F26-5091-A80B-AAAB66627017",
-      "name": "Requesón (Mercadona)"
+      "name": "Requesón (Mercadona)",
+      "protein": 8.7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 25,
+      "carbohydrates": 3.7,
+      "category": "produce",
+      "fat": 0.7,
       "id": "E8A79C41-0430-5FD0-B919-E17E1AB444BC",
-      "name": "Rúcula"
+      "name": "Rúcula",
+      "protein": 2.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 143,
+      "carbohydrates": 1.8,
+      "category": "pantry",
+      "fat": 7.5,
       "id": "552CBD84-0E3C-5593-A489-58ED4F33C53F",
-      "name": "Salmón al natural (lata) (Mercadona)"
+      "name": "Salmón al natural (lata) (Mercadona)",
+      "protein": 17
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 208,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 13.4,
       "id": "064BEEBE-396B-5D8A-BF36-F4F6966E64DC",
-      "name": "Salmón fresco"
+      "name": "Salmón fresco",
+      "protein": 20.4
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 57,
+      "carbohydrates": 2,
+      "category": "pantry",
+      "fat": 0.5,
       "id": "72E8AB81-89DA-55D9-9526-8E59A462736F",
-      "name": "Salsa de soja (Mercadona)"
+      "name": "Salsa de soja (Mercadona)",
+      "protein": 10
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 30,
+      "carbohydrates": 7.6,
+      "category": "produce",
+      "fat": 0.2,
       "id": "46B10535-3C71-5B09-8816-803589966576",
-      "name": "Sandía"
+      "name": "Sandía",
+      "protein": 0.6
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 559,
+      "carbohydrates": 11,
+      "category": "nuts",
+      "fat": 49,
       "id": "2C6400DB-3527-57F9-8E83-D7C899B587D6",
-      "name": "Semillas de calabaza"
+      "name": "Semillas de calabaza",
+      "protein": 30
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 486,
+      "carbohydrates": 42,
+      "category": "nuts",
+      "fat": 31,
       "id": "4C211831-2CB0-507C-A6DC-2706D27972C7",
-      "name": "Semillas de chía"
+      "name": "Semillas de chía",
+      "protein": 17
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 584,
+      "carbohydrates": 20,
+      "category": "nuts",
+      "fat": 51,
       "id": "D6A9BC27-3217-55E0-A2FB-1597FCBD0EEE",
-      "name": "Semillas de girasol"
+      "name": "Semillas de girasol",
+      "protein": 21
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 534,
+      "carbohydrates": 29,
+      "category": "nuts",
+      "fat": 42,
       "id": "A35B7F25-30B7-55D6-A4A3-236AAE833AF2",
-      "name": "Semillas de lino"
+      "name": "Semillas de lino",
+      "protein": 18
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 575,
+      "carbohydrates": 11.7,
+      "category": "nuts",
+      "fat": 48,
       "id": "EA1BE3CB-B43A-53B7-8B32-20B82BE60DA8",
-      "name": "Semillas de sésamo tostado (Mercadona)"
+      "name": "Semillas de sésamo tostado (Mercadona)",
+      "protein": 17
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 120,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 3.5,
       "id": "C50FC7B1-64BB-5153-99C0-D2CA1FF63952",
-      "name": "Solomillo de cerdo"
+      "name": "Solomillo de cerdo",
+      "protein": 20.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 133,
+      "carbohydrates": 0,
+      "category": "meatFish",
+      "fat": 5,
       "id": "20DFC16C-092A-5A4B-B470-0E246C4D9426",
-      "name": "Ternera magra"
+      "name": "Ternera magra",
+      "protein": 21
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 110,
+      "carbohydrates": 0.9,
+      "category": "dairyEggs",
+      "fat": 6.9,
       "id": "23CBFB97-0EA7-5DDD-AED6-B121AD022D27",
-      "name": "Tofu firme (Mercadona)"
+      "name": "Tofu firme (Mercadona)",
+      "protein": 11.1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 18,
+      "carbohydrates": 3.9,
+      "category": "produce",
+      "fat": 0.2,
       "id": "6AC0C349-7C96-5269-8AD3-D16DB436B0E6",
-      "name": "Tomate"
+      "name": "Tomate",
+      "protein": 0.9,
+      "unitWeightGrams": 150
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 22,
+      "carbohydrates": 4.1,
+      "category": "pantry",
+      "fat": 0,
       "id": "5BE12FBB-353F-5B77-89B4-33B9DC4ACE06",
-      "name": "Tomate entero pelado (Mercadona)"
+      "name": "Tomate entero pelado (Mercadona)",
+      "protein": 1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 81,
+      "carbohydrates": 11.6,
+      "category": "pantry",
+      "fat": 3,
       "id": "C860F007-87B6-5200-AEB3-4E16682A80DF",
-      "name": "Tomate frito (Mercadona)"
+      "name": "Tomate frito (Mercadona)",
+      "protein": 1.4
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 21,
+      "carbohydrates": 3.5,
+      "category": "pantry",
+      "fat": 0.1,
       "id": "D3D36B60-E7D7-529F-871A-FE2FB28CD8AE",
-      "name": "Tomate triturado (Mercadona)"
+      "name": "Tomate triturado (Mercadona)",
+      "protein": 1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 294,
+      "carbohydrates": 50,
+      "category": "bakeryCereals",
+      "fat": 5.8,
       "id": "A5A59358-5800-5E98-8B8A-ACFD8E18063B",
-      "name": "Tortillas de trigo (Mercadona)"
+      "name": "Tortillas de trigo (Mercadona)",
+      "protein": 8.4,
+      "unitWeightGrams": 40
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 368,
+      "carbohydrates": 80,
+      "category": "bakeryCereals",
+      "fat": 1.8,
       "id": "DEFC85D6-8332-5489-AF17-D1C2246F1B03",
-      "name": "Tortitas de maíz (Mercadona)"
+      "name": "Tortitas de maíz (Mercadona)",
+      "protein": 7.5
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 69,
+      "carbohydrates": 18,
+      "category": "produce",
+      "fat": 0.2,
       "id": "C0B0348D-E070-5F2B-A215-686BE932035B",
-      "name": "Uvas"
+      "name": "Uvas",
+      "protein": 0.7
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 123,
+      "carbohydrates": 25,
+      "category": "pantry",
+      "fat": 0,
       "id": "383A6FCF-C170-5770-B213-DF19E67B01CD",
-      "name": "Vinagre balsámico de Módena (Mercadona)"
+      "name": "Vinagre balsámico de Módena (Mercadona)",
+      "protein": 1
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 150,
+      "carbohydrates": 11.3,
+      "category": "dairyEggs",
+      "fat": 10,
       "id": "31947A09-1591-5C0D-9D5E-87702C6DF7A5",
-      "name": "Yogur griego natural (Mercadona)"
+      "name": "Yogur griego natural (Mercadona)",
+      "protein": 3.7,
+      "unitWeightGrams": 125
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 36,
+      "carbohydrates": 4.5,
+      "category": "dairyEggs",
+      "fat": 0.1,
       "id": "37D399DF-C0D8-5FB4-8C1E-D62C985D82C0",
-      "name": "Yogur natural 0% (Mercadona)"
+      "name": "Yogur natural 0% (Mercadona)",
+      "protein": 4.3,
+      "unitWeightGrams": 125
     },
     {
       "calorieUnit": "per100Grams",
       "calories": 41,
+      "carbohydrates": 9.6,
+      "category": "produce",
+      "fat": 0.2,
       "id": "C8059A68-FFF6-57CF-BD48-63C3D48F7137",
-      "name": "Zanahoria"
+      "name": "Zanahoria",
+      "protein": 0.9,
+      "unitWeightGrams": 80
     }
   ],
   "meals": [],

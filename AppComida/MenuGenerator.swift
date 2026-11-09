@@ -6,123 +6,251 @@
 //  Mail: enriquegd2004@gmail.com
 //  Date: 2026-10-12
 //  Plataforma: iOS · Swift / SwiftUI
-//  Descripción: Generador del menú semanal: elige para cada día una comida por franja intentando acercarse al objetivo calórico diario y repitiendo lo menos posible.
+//  Descripción: Generador del menú semanal: elige para cada día una comida por franja acercándose al objetivo calórico, repitiendo lo menos posible, con variedad aleatoria y respetando las comidas bloqueadas.
 //
 
 import Foundation
 
+/// Contrato de un generador de menús semanales. Permite sustituir el algoritmo (por ejemplo, por uno falso en pruebas).
+public protocol MenuGenerating: Sendable {
+    /// Genera un plan semanal.
+    /// - Parameters:
+    ///   - start: Primer día de la semana.
+    ///   - meals: Comidas disponibles.
+    ///   - dailyGoal: Objetivo calórico diario en kcal.
+    ///   - locked: Comidas que deben conservarse tal cual en el plan resultante.
+    /// - Returns: El plan generado o el motivo del fallo.
+    func generate(
+        weekStarting start: Date,
+        meals: [Meal],
+        dailyGoal: Int,
+        locked: [PlannedMeal]
+    ) -> Result<WeeklyPlan, GenerationError>
+}
+
+/// Generador de números pseudoaleatorios determinista (SplitMix64), útil para obtener menús reproducibles en pruebas.
+public struct SplitMix64: RandomNumberGenerator, Sendable {
+    private var state: UInt64
+
+    /// Crea el generador.
+    /// - Parameter seed: Semilla inicial; la misma semilla produce siempre la misma secuencia.
+    public init(seed: UInt64) {
+        state = seed
+    }
+
+    /// Calcula el siguiente número de la secuencia.
+    /// - Returns: Un valor de 64 bits.
+    public mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+        return z ^ (z >> 31)
+    }
+}
+
+/// Envuelve cualquier generador aleatorio para poder pasarlo como `inout` a funciones genéricas.
+private struct AnyRandomNumberGenerator: RandomNumberGenerator {
+    var base: any RandomNumberGenerator
+
+    /// Delega en el generador envuelto.
+    /// - Returns: El siguiente valor aleatorio de 64 bits.
+    mutating func next() -> UInt64 {
+        base.next()
+    }
+}
+
 /// Genera planes semanales ajustando las calorías diarias a un objetivo.
-public struct MenuGenerator: Sendable {
+///
+/// Para cada día evalúa las combinaciones de una comida por franja y elige, entre las que quedan
+/// dentro de la tolerancia, la que menos comidas repite; si hay varias igual de buenas escoge una al azar,
+/// de modo que cada generación produce un menú distinto.
+public struct MenuGenerator: MenuGenerating {
+    /// Diferencia calórica diaria que se considera aceptable por defecto, en kcal.
+    public static let defaultTolerance = 150
+
     public var calendar: Calendar
     public var tolerance: Int
+    /// Máximo de comidas candidatas por franja y día; limita el coste de la búsqueda.
+    public var candidateLimit: Int
+    /// Semilla para resultados reproducibles; `nil` usa el generador aleatorio del sistema.
+    public var seed: UInt64?
 
     /// Crea el generador.
     /// - Parameters:
     ///   - calendar: Calendario usado para calcular los días de la semana.
     ///   - tolerance: Diferencia calórica máxima aceptable respecto al objetivo, en kcal.
-    public init(calendar: Calendar = .current, tolerance: Int = 150) {
+    ///   - candidateLimit: Máximo de candidatas evaluadas por franja y día.
+    ///   - seed: Semilla opcional para obtener siempre el mismo resultado.
+    public init(calendar: Calendar = .current, tolerance: Int = MenuGenerator.defaultTolerance, candidateLimit: Int = 24, seed: UInt64? = nil) {
         self.calendar = calendar
         self.tolerance = tolerance
+        self.candidateLimit = max(candidateLimit, 1)
+        self.seed = seed
     }
 
     /// Genera un plan de siete días con una comida por franja y día.
     ///
-    /// Para cada día elige la combinación cuyas calorías por ración se acercan más al objetivo, prefiriendo comidas que aún no se hayan usado en la semana.
+    /// Las comidas de `locked` se conservan y cuentan para las calorías del día; el resto de franjas se rellenan.
     /// - Parameters:
     ///   - start: Primer día de la semana.
     ///   - meals: Comidas disponibles.
     ///   - dailyGoal: Objetivo calórico diario en kcal.
+    ///   - locked: Comidas bloqueadas que deben mantenerse.
     /// - Returns: El plan generado, o un `GenerationError` si el objetivo no es válido, la fecha falla o falta alguna franja.
-    public func generate(weekStarting start: Date, meals: [Meal], dailyGoal: Int) -> Result<WeeklyPlan, GenerationError> {
+    public func generate(
+        weekStarting start: Date,
+        meals: [Meal],
+        dailyGoal: Int,
+        locked: [PlannedMeal] = []
+    ) -> Result<WeeklyPlan, GenerationError> {
         guard dailyGoal > 0 else { return .failure(.invalidGoal) }
-        guard MealSlot.allCases.allSatisfy({ slot in meals.contains { meal in meal.mealSlots.contains(slot) } }) else {
+        guard MealSlot.allCases.allSatisfy({ slot in meals.contains { $0.mealSlots.contains(slot) } }) else {
             return .failure(.notEnoughMeals)
         }
 
-        var selectedIDs = Set<UUID>()
+        var random = AnyRandomNumberGenerator(base: seed.map { SplitMix64(seed: $0) } ?? SystemRandomNumberGenerator())
+        let mealsByID = Dictionary(meals.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        var usedIDs = Set<UUID>()
         var planned: [PlannedMeal] = []
+
         for dayOffset in 0..<7 {
             guard let date = calendar.date(byAdding: .day, value: dayOffset, to: start) else {
                 return .failure(.invalidDate)
             }
-            guard let dayMeals = bestCombination(
+            let fixed = locked.filter {
+                calendar.isDate($0.date, inSameDayAs: date) && mealsByID[$0.mealID] != nil
+            }
+            let fixedSlots = Set(fixed.map(\.slot))
+            let freeSlots = MealSlot.allCases.filter { !fixedSlots.contains($0) }
+            let fixedCalories = fixed.reduce(0) { total, item in
+                total + Int((Double(mealsByID[item.mealID]?.caloriesPerServing ?? 0) * item.servings).rounded())
+            }
+
+            guard let chosen = bestCombination(
+                freeSlots: freeSlots,
+                fixedCalories: fixedCalories,
+                fixedIDs: fixed.map(\.mealID),
                 meals: meals,
-                selectedIDs: selectedIDs,
-                dailyGoal: dailyGoal
+                usedIDs: usedIDs,
+                dailyGoal: dailyGoal,
+                random: &random
             ) else {
                 return .failure(.notEnoughMeals)
             }
-            for (slot, meal) in zip(MealSlot.allCases, dayMeals) {
-                selectedIDs.insert(meal.id)
+
+            for item in fixed {
+                usedIDs.insert(item.mealID)
+                var kept = item
+                kept.date = date
+                planned.append(kept)
+            }
+            for (slot, meal) in zip(freeSlots, chosen) {
+                usedIDs.insert(meal.id)
                 planned.append(PlannedMeal(date: date, slot: slot, mealID: meal.id))
             }
         }
         return .success(WeeklyPlan(weekStart: start, meals: planned))
     }
 
-    /// Busca la mejor combinación de una comida por franja para un día.
+    /// Busca la mejor combinación de una comida por cada franja libre de un día.
     ///
-    /// Minimiza la diferencia con el objetivo y, a igualdad, el número de comidas repetidas en el mismo día.
+    /// Criterio: primero las combinaciones dentro de la tolerancia, con el menor número de comidas ya usadas;
+    /// si ninguna está dentro de la tolerancia, la más cercana al objetivo. Los empates se resuelven al azar.
     /// - Parameters:
+    ///   - freeSlots: Franjas que hay que rellenar.
+    ///   - fixedCalories: Calorías ya aportadas por las comidas bloqueadas del día.
+    ///   - fixedIDs: Comidas bloqueadas del día, que cuentan como usadas.
     ///   - meals: Comidas disponibles.
-    ///   - selectedIDs: Comidas ya usadas en días anteriores, que se ordenan al final.
+    ///   - usedIDs: Comidas ya usadas en días anteriores.
     ///   - dailyGoal: Objetivo calórico diario en kcal.
-    /// - Returns: Las comidas elegidas en el orden de `MealSlot.allCases`, o `nil` si alguna franja no tiene candidatas.
+    ///   - random: Generador aleatorio.
+    /// - Returns: Las comidas elegidas en el orden de `freeSlots`, o `nil` si alguna franja no tiene candidatas.
     private func bestCombination(
+        freeSlots: [MealSlot],
+        fixedCalories: Int,
+        fixedIDs: [UUID],
         meals: [Meal],
-        selectedIDs: Set<UUID>,
-        dailyGoal: Int
+        usedIDs: Set<UUID>,
+        dailyGoal: Int,
+        random: inout AnyRandomNumberGenerator
     ) -> [Meal]? {
-        let candidates = MealSlot.allCases.map { slot in
-            meals
-                .filter { $0.mealSlots.contains(slot) }
-                .sorted {
-                    let firstIsUsed = selectedIDs.contains($0.id)
-                    let secondIsUsed = selectedIDs.contains($1.id)
-                    if firstIsUsed != secondIsUsed {
-                        return !firstIsUsed
-                    }
-                    if $0.caloriesPerServing != $1.caloriesPerServing {
-                        return $0.caloriesPerServing < $1.caloriesPerServing
-                    }
-                    return $0.name < $1.name
-                }
+        if freeSlots.isEmpty { return [] }
+
+        var candidates: [[Meal]] = []
+        for slot in freeSlots {
+            var options = meals.filter { $0.mealSlots.contains(slot) }
+            if options.isEmpty { return nil }
+            options.shuffle(using: &random)
+            let unused = options.filter { !usedIDs.contains($0.id) }
+            let reused = options.filter { usedIDs.contains($0.id) }
+            candidates.append(Array((unused + reused).prefix(candidateLimit)))
         }
-        guard candidates.allSatisfy({ !$0.isEmpty }) else { return nil }
 
         var best: [Meal]?
-        var bestDifference = Int.max
-        var bestRepeatedMeals = Int.max
+        var bestKey = (outside: Int.max, difference: Int.max, reuse: Int.max)
+        var ties = 0
         var current: [Meal] = []
 
-        /// Recorre recursivamente todas las combinaciones, una franja por nivel, guardando la mejor encontrada.
+        /// Recorre todas las combinaciones (una comida por franja) y conserva la mejor, eligiendo al azar entre empates.
         /// - Parameters:
         ///   - slotIndex: Franja que se está eligiendo.
         ///   - calories: Calorías acumuladas hasta ahora.
-        ///   - repeatedMeals: Comidas repetidas acumuladas hasta ahora.
-        func search(slotIndex: Int, calories: Int, repeatedMeals: Int) {
+        func search(slotIndex: Int, calories: Int) {
             if slotIndex == candidates.count {
                 let difference = abs(calories - dailyGoal)
-                if difference < bestDifference ||
-                    (difference == bestDifference && repeatedMeals < bestRepeatedMeals) {
+                let outside = difference > tolerance ? 1 : 0
+                let reuse = reuseCount(of: current, fixedIDs: fixedIDs, usedIDs: usedIDs)
+                let key = (outside: outside, difference: outside == 0 ? 0 : difference, reuse: reuse)
+                if best == nil || isBetter(key, than: bestKey) {
                     best = current
-                    bestDifference = difference
-                    bestRepeatedMeals = repeatedMeals
+                    bestKey = key
+                    ties = 1
+                } else if key == bestKey {
+                    ties += 1
+                    if Int.random(in: 0..<ties, using: &random) == 0 { best = current }
                 }
                 return
             }
-
             for meal in candidates[slotIndex] {
-                let nextCalories = calories + meal.caloriesPerServing
-                let nextRepeatedMeals = repeatedMeals + (current.contains { $0.id == meal.id } ? 1 : 0)
                 current.append(meal)
-                search(slotIndex: slotIndex + 1, calories: nextCalories, repeatedMeals: nextRepeatedMeals)
+                search(slotIndex: slotIndex + 1, calories: calories + meal.caloriesPerServing)
                 current.removeLast()
             }
         }
 
-        search(slotIndex: 0, calories: 0, repeatedMeals: 0)
+        search(slotIndex: 0, calories: fixedCalories)
         return best
+    }
+
+    /// Compara dos puntuaciones de combinación de forma lexicográfica (menor es mejor).
+    /// - Parameters:
+    ///   - lhs: Puntuación candidata.
+    ///   - rhs: Mejor puntuación hasta ahora.
+    /// - Returns: `true` si `lhs` es estrictamente mejor que `rhs`.
+    private func isBetter(
+        _ lhs: (outside: Int, difference: Int, reuse: Int),
+        than rhs: (outside: Int, difference: Int, reuse: Int)
+    ) -> Bool {
+        if lhs.outside != rhs.outside { return lhs.outside < rhs.outside }
+        if lhs.difference != rhs.difference { return lhs.difference < rhs.difference }
+        return lhs.reuse < rhs.reuse
+    }
+
+    /// Cuenta cuántas comidas de una combinación ya se habían usado (en la semana o dentro del mismo día).
+    /// - Parameters:
+    ///   - combination: Comidas elegidas.
+    ///   - fixedIDs: Comidas bloqueadas del día.
+    ///   - usedIDs: Comidas usadas en días anteriores.
+    /// - Returns: El número de repeticiones.
+    private func reuseCount(of combination: [Meal], fixedIDs: [UUID], usedIDs: Set<UUID>) -> Int {
+        var seen = Set(fixedIDs)
+        var count = 0
+        for meal in combination {
+            if usedIDs.contains(meal.id) || seen.contains(meal.id) { count += 1 }
+            seen.insert(meal.id)
+        }
+        return count
     }
 }
 

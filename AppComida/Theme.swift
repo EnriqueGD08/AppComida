@@ -44,6 +44,22 @@ extension MealSlot {
     }
 }
 
+/// Icono asociado a cada sección del supermercado.
+extension IngredientCategory {
+    var icon: String {
+        switch self {
+        case .produce: "carrot.fill"
+        case .meatFish: "fish.fill"
+        case .dairyEggs: "cup.and.saucer.fill"
+        case .bakeryCereals: "takeoutbag.and.cup.and.straw.fill"
+        case .legumes: "leaf.fill"
+        case .nuts: "tree.fill"
+        case .pantry: "shippingbox.fill"
+        case .other: "bag.fill"
+        }
+    }
+}
+
 /// Fondo con un degradado suave en la parte superior.
 struct AppBackground: View {
     var body: some View {
