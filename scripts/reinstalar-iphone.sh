@@ -16,7 +16,9 @@
 #    MIN_DAYS     Días mínimos entre reinstalaciones. Por defecto 5.
 #    WARN_DAYS    Días desde la última instalación a partir de los cuales un fallo avisa con una notificación. Por defecto 6.
 #    FORCE        Con valor 1 ignora MIN_DAYS y reinstala ya.
-#    PROJECT_DIR  Carpeta del proyecto. Por defecto, la carpeta que contiene `scripts/`.
+#    REPO_URL     Si se define, el script mantiene su propia copia del repositorio (rama main) en STATE_DIR y compila desde
+#                 ella. Es necesario cuando se ejecuta desde launchd, porque macOS no le deja leer la carpeta Escritorio.
+#    PROJECT_DIR  Carpeta del proyecto. Por defecto, la carpeta que contiene `scripts/` (ignorada si hay REPO_URL).
 #    STATE_DIR    Carpeta donde se guardan el registro y la fecha de la última instalación.
 #
 
@@ -30,8 +32,13 @@ WARN_DAYS="${WARN_DAYS:-6}"
 FORCE="${FORCE:-0}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="${PROJECT_DIR:-$(dirname "$SCRIPT_DIR")}"
 STATE_DIR="${STATE_DIR:-$HOME/Library/Application Support/AppComida-Reinstall}"
+REPO_URL="${REPO_URL:-}"
+if [ -n "$REPO_URL" ]; then
+    PROJECT_DIR="$STATE_DIR/repo"
+else
+    PROJECT_DIR="${PROJECT_DIR:-$(dirname "$SCRIPT_DIR")}"
+fi
 STAMP="$STATE_DIR/last_success"
 LOG="$STATE_DIR/reinstall.log"
 LOCK="$STATE_DIR/lock"
@@ -50,6 +57,18 @@ log() {
 # Argumentos: título y texto (sin comillas dobles).
 notify() {
     osascript -e "display notification \"$2\" with title \"$1\"" >/dev/null 2>&1 || true
+}
+
+# Deja la copia local del repositorio igual que la rama main remota (clonándola la primera vez).
+# Devuelve un código distinto de cero si falla alguna operación de git.
+sync_repo() {
+    if [ -d "$PROJECT_DIR/.git" ]; then
+        git -C "$PROJECT_DIR" fetch --depth 1 origin main >> "$LOG" 2>&1 \
+            && git -C "$PROJECT_DIR" reset --hard FETCH_HEAD >> "$LOG" 2>&1
+    else
+        rm -rf "$PROJECT_DIR"
+        git clone --depth 1 --branch main "$REPO_URL" "$PROJECT_DIR" >> "$LOG" 2>&1
+    fi
 }
 
 now=$(date +%s)
@@ -84,6 +103,10 @@ log "Inicio (última instalación hace $age_days días)"
 
 if ! xcrun devicectl device info details --device "$DEVICE_ID" >/dev/null 2>&1; then
     fail "No se puede contactar con el iPhone (¿bloqueado, apagado o fuera de la red?)"
+fi
+
+if [ -n "$REPO_URL" ] && ! sync_repo; then
+    fail "No se pudo descargar el repositorio (¿sin red o sin credenciales de GitHub en el llavero?)"
 fi
 
 if ! xcodebuild \

@@ -9,6 +9,9 @@
 #  Plataforma: macOS · bash
 #  Descripción: Instala (o desinstala) una tarea de launchd que ejecuta `reinstalar-iphone.sh` cada 4 horas
 #  mientras el Mac está encendido, para renovar automáticamente el plazo de 7 días de la app en el iPhone.
+#  macOS no permite que una tarea en segundo plano lea la carpeta Escritorio, así que el instalador copia el script
+#  a una carpeta no protegida y la tarea compila desde su propia copia del repositorio (la rama main de GitHub),
+#  por lo que se instala siempre la última versión subida.
 #
 #  Uso:
 #    ./scripts/instalar-tarea-programada.sh <UDID del iPhone> [--probar]
@@ -24,7 +27,9 @@ LABEL="com.enrique.appcomida.reinstall"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 STATE_DIR="$HOME/Library/Application Support/AppComida-Reinstall"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="$SCRIPT_DIR/reinstalar-iphone.sh"
+SOURCE_SCRIPT="$SCRIPT_DIR/reinstalar-iphone.sh"
+TARGET="$STATE_DIR/reinstalar-iphone.sh"
+REPO_URL="$(git -C "$SCRIPT_DIR/.." remote get-url origin 2>/dev/null || true)"
 
 # Muestra cómo se usa el script.
 uso() {
@@ -52,6 +57,8 @@ render_plist() {
     <dict>
         <key>DEVICE_ID</key>
         <string>$1</string>
+        <key>REPO_URL</key>
+        <string>$REPO_URL</string>
     </dict>
     <key>RunAtLoad</key>
     <true/>
@@ -87,7 +94,14 @@ if [ "${DRY_RUN:-0}" = "1" ]; then
     exit 0
 fi
 
+if [ -z "$REPO_URL" ]; then
+    echo "No se pudo leer la dirección del repositorio (git remote origin)." >&2
+    exit 1
+fi
+
 mkdir -p "$HOME/Library/LaunchAgents" "$STATE_DIR"
+cp "$SOURCE_SCRIPT" "$TARGET"
+chmod +x "$TARGET"
 render_plist "$DEVICE_ID" > "$PLIST"
 plutil -lint "$PLIST" >/dev/null
 
