@@ -10,11 +10,25 @@ struct MealsTabView: View {
     let onEdit: (Meal) -> Void
     let onDelete: (Meal) -> Void
 
+    @State private var query = ""
+
+    private var trimmedQuery: String { query.trimmingCharacters(in: .whitespacesAndNewlines) }
+    private var isSearching: Bool { !trimmedQuery.isEmpty }
+    private var filteredMeals: [Meal] {
+        meals.filter { $0.name.localizedStandardContains(trimmedQuery) }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 28) {
-                    goalCard
+                    if isSearching {
+                        if filteredMeals.isEmpty {
+                            ContentUnavailableView.search(text: trimmedQuery)
+                        }
+                    } else {
+                        goalCard
+                    }
                     ForEach(MealSlot.allCases) { slot in
                         slotSection(slot)
                     }
@@ -24,6 +38,7 @@ struct MealsTabView: View {
             }
             .background(AppBackground())
             .navigationTitle("Mis comidas")
+            .searchable(text: $query, prompt: "Buscar comida")
             .toolbar {
                 Button(action: onNew) {
                     Label("Nueva comida", systemImage: "plus")
@@ -81,8 +96,9 @@ struct MealsTabView: View {
     }
 
     private func slotSection(_ slot: MealSlot) -> some View {
-        let slotMeals = meals.filter { $0.mealSlots.contains(slot) }
-        return VStack(spacing: 12) {
+        let slotMeals = (isSearching ? filteredMeals : meals).filter { $0.mealSlots.contains(slot) }
+        if isSearching && slotMeals.isEmpty { return AnyView(EmptyView()) }
+        return AnyView(VStack(spacing: 12) {
             SectionTitle(title: slot.title, systemImage: slot.icon, color: slot.color, trailing: "\(slotMeals.count)")
             if slotMeals.isEmpty {
                 Text("Aún no hay comidas para esta franja.")
@@ -102,7 +118,7 @@ struct MealsTabView: View {
                     Button(role: .destructive) { onDelete(meal) } label: { Label("Eliminar", systemImage: "trash") }
                 }
             }
-        }
+        })
     }
 }
 
@@ -385,10 +401,17 @@ struct IngredientsTabView: View {
     let onEdit: (CatalogIngredient) -> Void
     let onDelete: (CatalogIngredient) -> Void
 
+    @State private var query = ""
+
+    private var filtered: [CatalogIngredient] {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return q.isEmpty ? ingredients : ingredients.filter { $0.name.localizedStandardContains(q) }
+    }
+
     var body: some View {
         NavigationStack {
             List {
-                ForEach(ingredients) { ingredient in
+                ForEach(filtered) { ingredient in
                     HStack(spacing: 14) {
                         IconBadge(systemName: "carrot.fill", color: .orange)
                         VStack(alignment: .leading, spacing: 2) {
@@ -413,7 +436,9 @@ struct IngredientsTabView: View {
             .scrollContentBackground(.hidden)
             .background(AppBackground())
             .overlay {
-                if ingredients.isEmpty {
+                if !ingredients.isEmpty && filtered.isEmpty {
+                    ContentUnavailableView.search(text: query)
+                } else if ingredients.isEmpty {
                     EmptyCard(
                         systemImage: "carrot",
                         title: "Sin ingredientes",
@@ -422,6 +447,7 @@ struct IngredientsTabView: View {
                 }
             }
             .navigationTitle("Ingredientes")
+            .searchable(text: $query, prompt: "Buscar ingrediente")
             .toolbar {
                 Button(action: onNew) {
                     Label("Nuevo ingrediente", systemImage: "plus")
@@ -551,5 +577,50 @@ struct ShoppingTabView: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: done)
+    }
+}
+
+// MARK: - Selector de ingredientes con búsqueda
+
+struct IngredientPickerView: View {
+    @Environment(\.dismiss) private var dismiss
+    let ingredients: [CatalogIngredient]
+    let selectedID: UUID?
+    let onSelect: (CatalogIngredient) -> Void
+
+    @State private var query = ""
+
+    private var filtered: [CatalogIngredient] {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let list = q.isEmpty ? ingredients : ingredients.filter { $0.name.localizedStandardContains(q) }
+        return list.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    var body: some View {
+        List(filtered) { ingredient in
+            Button {
+                onSelect(ingredient)
+                dismiss()
+            } label: {
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(ingredient.name).foregroundStyle(.primary)
+                        Text("\(ingredient.calories.formatted()) kcal \(ingredient.calorieUnit.title.lowercased())")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if ingredient.id == selectedID {
+                        Image(systemName: "checkmark").foregroundStyle(Theme.accent)
+                    }
+                }
+            }
+        }
+        .overlay {
+            if filtered.isEmpty { ContentUnavailableView.search(text: query) }
+        }
+        .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Buscar ingrediente")
+        .navigationTitle("Ingrediente")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -529,6 +529,7 @@ private struct MealEditorView: View {
     @State private var draft: Meal
     @State private var catalogIngredients: [CatalogIngredient]
     @State private var catalogEditorMode: CatalogEditorMode?
+    @State private var isPickingIngredient = false
     private let isNew: Bool
     let onSave: (Meal) throws -> Void
     let onSaveCatalogIngredient: (CatalogIngredient) throws -> Void
@@ -574,12 +575,16 @@ private struct MealEditorView: View {
                 Section("Ingredientes") {
                     ForEach($draft.ingredients) { $ingredient in
                         VStack(alignment: .leading) {
-                            if !catalogIngredients.isEmpty {
-                                Picker("Ingrediente", selection: catalogIDBinding(for: $ingredient)) {
-                                    ForEach(catalogIngredients) { catalogIngredient in
-                                        Text(catalogIngredient.name).tag(catalogIngredient.id)
-                                    }
+                            NavigationLink {
+                                IngredientPickerView(
+                                    ingredients: catalogIngredients,
+                                    selectedID: ingredient.catalogID
+                                ) { selected in
+                                    ingredient.catalogID = selected.id
+                                    ingredient.name = selected.name
                                 }
+                            } label: {
+                                LabeledContent("Ingrediente", value: ingredient.name)
                             }
                             TextField("Gramos", value: gramsBinding(for: $ingredient), format: .number)
                                 .keyboardType(.decimalPad)
@@ -587,14 +592,7 @@ private struct MealEditorView: View {
                     }
                     .onDelete { draft.ingredients.remove(atOffsets: $0) }
                     Button {
-                        if let ingredient = catalogIngredients.first {
-                            draft.ingredients.append(Ingredient(
-                                name: ingredient.name,
-                                quantity: "0 g",
-                                catalogID: ingredient.id,
-                                grams: 0
-                            ))
-                        }
+                        isPickingIngredient = true
                     } label: {
                         Label("Añadir ingrediente", systemImage: "plus")
                     }
@@ -646,6 +644,23 @@ private struct MealEditorView: View {
             }
             .sheet(item: $catalogEditorMode) { mode in
                 CatalogIngredientEditorView(ingredient: mode.ingredient, onSave: saveCatalogIngredient)
+            }
+            .sheet(isPresented: $isPickingIngredient) {
+                NavigationStack {
+                    IngredientPickerView(ingredients: catalogIngredients, selectedID: nil) { selected in
+                        draft.ingredients.append(Ingredient(
+                            name: selected.name,
+                            quantity: "0 g",
+                            catalogID: selected.id,
+                            grams: 0
+                        ))
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancelar") { isPickingIngredient = false }
+                        }
+                    }
+                }
             }
         }
     }
@@ -731,16 +746,6 @@ private struct MealEditorView: View {
             }
             return total + catalogIngredient.caloriesPerGram * grams
         }.rounded())
-    }
-
-    private func catalogIDBinding(for ingredient: Binding<Ingredient>) -> Binding<UUID> {
-        Binding(
-            get: { ingredient.wrappedValue.catalogID ?? catalogIngredients[0].id },
-            set: { catalogID in
-                ingredient.wrappedValue.catalogID = catalogID
-                ingredient.wrappedValue.name = catalogIngredients.first { $0.id == catalogID }?.name ?? ""
-            }
-        )
     }
 
     private func gramsBinding(for ingredient: Binding<Ingredient>) -> Binding<Double> {
