@@ -152,6 +152,13 @@ struct PlanTabView: View {
                             Text(meal.name)
                                 .font(.subheadline.weight(.semibold))
                                 .multilineTextAlignment(.leading)
+                            let chosen = meal.chosenOptions(for: planned.choices)
+                            if !chosen.isEmpty {
+                                Text(chosen.map(\.ingredient.name).joined(separator: " · "))
+                                    .font(.caption)
+                                    .foregroundStyle(Theme.accent)
+                                    .multilineTextAlignment(.leading)
+                            }
                         }
                         Spacer(minLength: 8)
                         VStack(alignment: .trailing, spacing: 0) {
@@ -239,6 +246,26 @@ struct PlannedMealEditorView: View {
                         Text("Raciones")
                     } footer: {
                         Text("La lista de la compra se ajusta a las raciones que indiques.")
+                    }
+                    ForEach(meal.optionGroups) { group in
+                        Section {
+                            Picker(group.name, selection: Binding<UUID?>(
+                                get: { planned.choices.first { $0.groupID == group.id }?.optionID },
+                                set: { optionID in
+                                    if let optionID {
+                                        viewModel.setChoice(planned: plannedID, group: group.id, option: optionID)
+                                    }
+                                }
+                            )) {
+                                ForEach(group.options) { option in
+                                    Text("\(option.ingredient.name) · \(option.calories) kcal").tag(UUID?.some(option.id))
+                                }
+                            }
+                        } header: {
+                            Text(group.name)
+                        } footer: {
+                            Text("Cambia la opción de este día; se actualizan las calorías y la lista de la compra.")
+                        }
                     }
                     Section {
                         Toggle("Mantener al regenerar el menú", isOn: Binding(

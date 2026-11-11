@@ -69,6 +69,9 @@ public struct MenuGenerator: MenuGenerating {
     /// Diferencia calórica diaria que se considera aceptable por defecto, en kcal.
     public static let defaultTolerance = 150
 
+    /// Máximo de combinaciones de opciones que se evalúan por día; si hay más, se muestrean al azar.
+    private static let optionSearchLimit = 4_096
+
     public var calendar: Calendar
     public var tolerance: Int
     /// Máximo de comidas candidatas por franja y día; limita el coste de la búsqueda.
@@ -91,6 +94,8 @@ public struct MenuGenerator: MenuGenerating {
 
     /// Genera un plan de siete días con una comida por franja y día.
     ///
+    /// Cada comida entra con sus raciones por toma y, si tiene ingredientes variables, con una opción elegida de cada grupo.
+    ///
     /// Las comidas de `locked` se conservan y cuentan para las calorías del día; el resto de franjas se rellenan.
     /// - Parameters:
     ///   - start: Primer día de la semana.
@@ -112,6 +117,7 @@ public struct MenuGenerator: MenuGenerating {
         var random = AnyRandomNumberGenerator(base: seed.map { SplitMix64(seed: $0) } ?? SystemRandomNumberGenerator())
         let mealsByID = Dictionary(meals.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var usedIDs = Set<UUID>()
+        var optionUsage: [UUID: Int] = [:]
         var planned: [PlannedMeal] = []
 
         for dayOffset in 0..<7 {
@@ -124,7 +130,7 @@ public struct MenuGenerator: MenuGenerating {
             let fixedSlots = Set(fixed.map(\.slot))
             let freeSlots = MealSlot.allCases.filter { !fixedSlots.contains($0) }
             let fixedCalories = fixed.reduce(0) { total, item in
-                total + Int((Double(mealsByID[item.mealID]?.caloriesPerServing ?? 0) * item.servings).rounded())
+                total + (mealsByID[item.mealID]?.calories(for: item) ?? 0)
             }
 
             guard let chosen = bestCombination(
@@ -139,16 +145,25 @@ public struct MenuGenerator: MenuGenerating {
                 return .failure(.notEnoughMeals)
             }
 
+            var dayMeals: [PlannedMeal] = []
             for item in fixed {
                 usedIDs.insert(item.mealID)
                 var kept = item
                 kept.date = date
-                planned.append(kept)
+                dayMeals.append(kept)
             }
             for (slot, meal) in zip(freeSlots, chosen) {
                 usedIDs.insert(meal.id)
-                planned.append(PlannedMeal(date: date, slot: slot, mealID: meal.id))
+                dayMeals.append(PlannedMeal(date: date, slot: slot, mealID: meal.id, servings: meal.plannedServings))
             }
+            assignOptions(
+                to: &dayMeals,
+                mealsByID: mealsByID,
+                usage: &optionUsage,
+                dailyGoal: dailyGoal,
+                random: &random
+            )
+            planned.append(contentsOf: dayMeals)
         }
         return .success(WeeklyPlan(weekStart: start, meals: planned))
     }
@@ -214,13 +229,103 @@ public struct MenuGenerator: MenuGenerating {
             }
             for meal in candidates[slotIndex] {
                 current.append(meal)
-                search(slotIndex: slotIndex + 1, calories: calories + meal.caloriesPerServing)
+                search(slotIndex: slotIndex + 1, calories: calories + meal.expectedCalories)
                 current.removeLast()
             }
         }
 
         search(slotIndex: 0, calories: fixedCalories)
         return best
+    }
+
+    /// Elige, para cada ingrediente variable de las comidas de un día, una de sus opciones.
+    ///
+    /// Criterio: se aceptan las combinaciones que dejan el día dentro de la tolerancia (con las calorías exactas de las opciones) o,
+    /// si ninguna lo consigue, las que no se alejan del mejor resultado posible más que la tolerancia. Entre las aceptables
+    /// se eligen las opciones menos usadas durante la semana, para que haya variedad; los empates se resuelven al azar.
+    /// Las comidas que ya traen una elección (bloqueadas) la conservan y cuentan como usadas.
+    /// - Parameters:
+    ///   - dayMeals: Comidas planificadas del día; se les añaden las elecciones.
+    ///   - mealsByID: Comidas disponibles por identificador.
+    ///   - usage: Veces que se ha usado cada opción en la semana; se actualiza.
+    ///   - dailyGoal: Objetivo calórico diario en kcal.
+    ///   - random: Generador aleatorio.
+    private func assignOptions(
+        to dayMeals: inout [PlannedMeal],
+        mealsByID: [UUID: Meal],
+        usage: inout [UUID: Int],
+        dailyGoal: Int,
+        random: inout AnyRandomNumberGenerator
+    ) {
+        var baseCalories = 0.0
+        var pending: [(index: Int, group: MealOptionGroup, factor: Double)] = []
+        for (index, item) in dayMeals.enumerated() {
+            guard let meal = mealsByID[item.mealID] else { continue }
+            let factor = item.servings / Double(max(meal.servings, 1))
+            baseCalories += Double(meal.calories) * factor
+            for option in meal.chosenOptions(for: item.choices) {
+                baseCalories += Double(option.calories) * factor
+                usage[option.id, default: 0] += 1
+            }
+            for group in meal.optionGroups where !group.options.isEmpty
+                && !item.choices.contains(where: { $0.groupID == group.id }) {
+                pending.append((index, group, factor))
+            }
+        }
+        guard !pending.isEmpty else { return }
+
+        let counts = pending.map { $0.group.options.count }
+        var space = 1
+        for count in counts { space = min(space * count, Self.optionSearchLimit + 1) }
+
+        var candidates: [(picks: [Int], difference: Int, reuse: Int)] = []
+
+        /// Evalúa una combinación de opciones (una por grupo) y la guarda como candidata.
+        /// - Parameter picks: Índice de la opción elegida en cada grupo pendiente.
+        func consider(_ picks: [Int]) {
+            var calories = baseCalories
+            var reuse = 0
+            for (slot, pick) in picks.enumerated() {
+                let option = pending[slot].group.options[pick]
+                calories += Double(option.calories) * pending[slot].factor
+                reuse += usage[option.id, default: 0]
+            }
+            candidates.append((picks, abs(Int(calories.rounded()) - dailyGoal), reuse))
+        }
+
+        if space <= Self.optionSearchLimit {
+            var picks = Array(repeating: 0, count: counts.count)
+            while true {
+                consider(picks)
+                var position = picks.count - 1
+                while position >= 0 {
+                    picks[position] += 1
+                    if picks[position] < counts[position] { break }
+                    picks[position] = 0
+                    position -= 1
+                }
+                if position < 0 { break }
+            }
+        } else {
+            for _ in 0..<Self.optionSearchLimit {
+                consider(counts.map { Int.random(in: 0..<$0, using: &random) })
+            }
+        }
+
+        // Combinaciones aceptables: las que dejan el día dentro de la tolerancia o, si ninguna lo consigue,
+        // las que no se alejan del mejor resultado posible más que la propia tolerancia. Entre ellas manda la variedad.
+        let minDifference = candidates.map(\.difference).min() ?? 0
+        let limit = minDifference > tolerance ? minDifference + tolerance : tolerance
+        let acceptable = candidates.filter { $0.difference <= limit }
+        let lowestReuse = acceptable.map(\.reuse).min() ?? 0
+        let finalists = acceptable.filter { $0.reuse == lowestReuse }
+        let best = finalists[Int.random(in: 0..<finalists.count, using: &random)].picks
+
+        for (slot, pick) in best.enumerated() {
+            let option = pending[slot].group.options[pick]
+            dayMeals[pending[slot].index].choices.append(OptionChoice(groupID: pending[slot].group.id, optionID: option.id))
+            usage[option.id, default: 0] += 1
+        }
     }
 
     /// Compara dos puntuaciones de combinación de forma lexicográfica (menor es mejor).

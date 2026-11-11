@@ -84,10 +84,21 @@ public enum BackupService {
         var mealNames = Set(meals.map { $0.name.searchKey })
         for meal in incoming.meals where !mealNames.contains(meal.name.searchKey) {
             var copy = meal
-            copy.ingredients = meal.ingredients.map { ingredient in
+            /// Reapunta un ingrediente al del catálogo actual con el mismo nombre, si lo hay.
+            func remapped(_ ingredient: Ingredient) -> Ingredient {
                 var updated = ingredient
                 if let id = ingredient.catalogID, let mapped = remap[id] { updated.catalogID = mapped }
                 return updated
+            }
+            copy.ingredients = meal.ingredients.map(remapped)
+            copy.optionGroups = meal.optionGroups.map { group in
+                var updatedGroup = group
+                updatedGroup.options = group.options.map { option in
+                    var updatedOption = option
+                    updatedOption.ingredient = remapped(option.ingredient)
+                    return updatedOption
+                }
+                return updatedGroup
             }
             meals.append(copy)
             mealNames.insert(meal.name.searchKey)

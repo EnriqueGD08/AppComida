@@ -64,12 +64,15 @@ struct RootView: View {
         .tint(Theme.accent)
         .sheet(item: $navigator.mealEditor) { mode in
             MealEditorView(meal: mode.meal)
+                .tint(Theme.accent)
         }
         .sheet(item: $navigator.catalogEditor) { mode in
             CatalogIngredientEditorView(ingredient: mode.ingredient) { try viewModel.saveCatalogIngredient($0) }
+                .tint(Theme.accent)
         }
         .sheet(item: $navigator.plannedMealEditor) { reference in
             PlannedMealEditorView(plannedID: reference.id)
+                .tint(Theme.accent)
         }
         .confirmationDialog(
             "¿Eliminar \(navigator.mealToDelete?.name ?? "esta comida")?",

@@ -39,6 +39,24 @@ public enum MealValidator {
         if meal.servings <= 0 {
             return "Las raciones deben ser mayores que cero."
         }
+        if meal.plannedServings < 0.5 || meal.plannedServings > 6 {
+            return "Las raciones por toma deben estar entre 0,5 y 6."
+        }
+        for group in meal.optionGroups {
+            if group.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return "Pon un nombre a cada ingrediente variable."
+            }
+            if group.options.count < 2 {
+                return "El ingrediente variable \"\(group.name)\" necesita al menos dos opciones."
+            }
+            let optionsAreValid = group.options.allSatisfy { option in
+                guard let id = option.ingredient.catalogID, known.contains(id), let grams = option.ingredient.grams else { return false }
+                return grams > 0
+            }
+            if !optionsAreValid {
+                return "Cada opción de \"\(group.name)\" necesita un ingrediente registrado y gramos mayores que cero."
+            }
+        }
         if meal.nutrition.protein < 0 || meal.nutrition.carbohydrates < 0 || meal.nutrition.fat < 0 {
             return "Los valores nutricionales no pueden ser negativos."
         }

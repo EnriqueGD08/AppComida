@@ -48,20 +48,46 @@ public enum RecipeCalculator {
         return total
     }
 
-    /// Recalcula las calorías (y los macronutrientes, si son calculables) de una comida con el catálogo actual.
+    /// Calorías y macronutrientes de un único ingrediente (por ejemplo, una opción de un ingrediente variable).
+    /// - Parameters:
+    ///   - ingredient: Ingrediente con su cantidad en gramos.
+    ///   - catalog: Catálogo de ingredientes.
+    /// - Returns: Calorías y macronutrientes (ceros si el catálogo no los tiene), o `nil` si el ingrediente no se puede resolver.
+    public static func values(of ingredient: Ingredient, catalog: [CatalogIngredient]) -> (calories: Int, nutrition: Nutrition)? {
+        guard let grams = ingredient.grams,
+              let id = ingredient.catalogID,
+              let item = index(catalog)[id] else { return nil }
+        let nutrition = item.macrosPer100g?.scaled(by: grams / 100) ?? Nutrition()
+        return (Int((item.caloriesPerGram * grams).rounded()), nutrition)
+    }
+
+    /// Recalcula las calorías (y los macronutrientes, si son calculables) de una comida con el catálogo actual,
+    /// incluidas las opciones de sus ingredientes variables.
     ///
-    /// Si algún ingrediente no se puede resolver, las calorías no se tocan.
+    /// Si algún ingrediente fijo no se puede resolver, las calorías de la receta no se tocan; las opciones se recalculan una a una.
     /// - Parameters:
     ///   - meal: Comida a recalcular.
     ///   - catalog: Catálogo de ingredientes.
     /// - Returns: La comida con los valores actualizados.
     public static func recalculated(_ meal: Meal, catalog: [CatalogIngredient]) -> Meal {
+        var updated = meal
+        updated.optionGroups = meal.optionGroups.map { group in
+            var recalculatedGroup = group
+            recalculatedGroup.options = group.options.map { option in
+                guard let values = values(of: option.ingredient, catalog: catalog) else { return option }
+                var recalculatedOption = option
+                recalculatedOption.calories = values.calories
+                recalculatedOption.nutrition = values.nutrition
+                return recalculatedOption
+            }
+            return recalculatedGroup
+        }
+
         let byID = index(catalog)
         let resolvable = !meal.ingredients.isEmpty && meal.ingredients.allSatisfy {
             $0.grams != nil && $0.catalogID.flatMap { byID[$0] } != nil
         }
-        guard resolvable else { return meal }
-        var updated = meal
+        guard resolvable else { return updated }
         updated.calories = calories(of: meal.ingredients, catalog: catalog)
         if let computed = nutrition(of: meal.ingredients, catalog: catalog) {
             updated.nutrition = computed

@@ -220,6 +220,65 @@ public nonisolated struct CatalogIngredient: Codable, Identifiable, Equatable, S
     }
 }
 
+/// Una opción de un ingrediente variable (por ejemplo, "mermelada" dentro del grupo "Untado").
+///
+/// Igual que `Meal.calories`, `calories` y `nutrition` son una copia calculada con el catálogo para la cantidad indicada
+/// (receta completa) y se recalculan cuando cambia el catálogo.
+public nonisolated struct MealOption: Codable, Identifiable, Equatable, Sendable {
+    public var id: UUID
+    public var ingredient: Ingredient
+    public var calories: Int
+    public var nutrition: Nutrition
+
+    /// Crea una opción.
+    /// - Parameters:
+    ///   - id: Identificador único.
+    ///   - ingredient: Ingrediente del catálogo y cantidad en gramos.
+    ///   - calories: Calorías de la cantidad indicada.
+    ///   - nutrition: Macronutrientes de la cantidad indicada (ceros si el catálogo no los tiene).
+    public init(id: UUID = UUID(), ingredient: Ingredient, calories: Int = 0, nutrition: Nutrition = Nutrition()) {
+        self.id = id
+        self.ingredient = ingredient
+        self.calories = calories
+        self.nutrition = nutrition
+    }
+}
+
+/// Ingrediente variable de una receta: un grupo de opciones entre las que se elige una cada vez que la comida entra en el menú.
+///
+/// Ejemplo: unas tortitas con el grupo "Untado" y las opciones chocolate, mermelada, queso de untar o jamón.
+public nonisolated struct MealOptionGroup: Codable, Identifiable, Equatable, Sendable {
+    public var id: UUID
+    public var name: String
+    public var options: [MealOption]
+
+    /// Crea un grupo de opciones.
+    /// - Parameters:
+    ///   - id: Identificador único.
+    ///   - name: Nombre del grupo (por ejemplo "Untado").
+    ///   - options: Opciones entre las que se elige.
+    public init(id: UUID = UUID(), name: String, options: [MealOption] = []) {
+        self.id = id
+        self.name = name
+        self.options = options
+    }
+}
+
+/// Opción elegida de un grupo para una comida concreta del plan.
+public nonisolated struct OptionChoice: Codable, Equatable, Sendable {
+    public var groupID: UUID
+    public var optionID: UUID
+
+    /// Crea una elección.
+    /// - Parameters:
+    ///   - groupID: Grupo de opciones.
+    ///   - optionID: Opción elegida dentro del grupo.
+    public init(groupID: UUID, optionID: UUID) {
+        self.groupID = groupID
+        self.optionID = optionID
+    }
+}
+
 /// Comida o receta: franjas en las que se puede tomar, calorías, raciones, ingredientes y pasos de preparación.
 ///
 /// `calories` y `nutrition` corresponden a la receta completa; para una ración usa `caloriesPerServing` y `nutritionPerServing`.
@@ -233,6 +292,10 @@ public nonisolated struct Meal: Codable, Identifiable, Equatable, Sendable {
     public var ingredients: [Ingredient]
     public var steps: [String]
     public var isFavorite: Bool
+    /// Grupos de ingredientes variables; al planificar la comida se elige una opción de cada grupo.
+    public var optionGroups: [MealOptionGroup]
+    /// Raciones que se añaden al menú cada vez que sale esta comida (0,5–6).
+    public var plannedServings: Double
 
     /// Crea una comida.
     /// - Parameters:
@@ -246,6 +309,8 @@ public nonisolated struct Meal: Codable, Identifiable, Equatable, Sendable {
     ///   - ingredients: Ingredientes de la receta.
     ///   - steps: Pasos de preparación.
     ///   - isFavorite: Si la comida está marcada como favorita.
+    ///   - optionGroups: Grupos de ingredientes variables.
+    ///   - plannedServings: Raciones que se ponen en el menú cada vez que sale la comida.
     public init(
         id: UUID = UUID(),
         name: String,
@@ -256,7 +321,9 @@ public nonisolated struct Meal: Codable, Identifiable, Equatable, Sendable {
         nutrition: Nutrition = Nutrition(),
         ingredients: [Ingredient] = [],
         steps: [String] = [],
-        isFavorite: Bool = false
+        isFavorite: Bool = false,
+        optionGroups: [MealOptionGroup] = [],
+        plannedServings: Double = 1
     ) {
         self.id = id
         self.name = name
@@ -267,6 +334,8 @@ public nonisolated struct Meal: Codable, Identifiable, Equatable, Sendable {
         self.ingredients = ingredients
         self.steps = steps
         self.isFavorite = isFavorite
+        self.optionGroups = optionGroups
+        self.plannedServings = plannedServings
     }
 
     /// Primera franja de la comida; compatibilidad con datos antiguos que solo tenían una.
@@ -277,10 +346,10 @@ public nonisolated struct Meal: Codable, Identifiable, Equatable, Sendable {
 
     /// Claves usadas al codificar y decodificar `Meal` en JSON (incluye `suggestedSlot` por compatibilidad).
     private enum CodingKeys: String, CodingKey {
-        case id, name, mealSlots, suggestedSlot, calories, servings, nutrition, ingredients, steps, isFavorite
+        case id, name, mealSlots, suggestedSlot, calories, servings, nutrition, ingredients, steps, isFavorite, optionGroups, plannedServings
     }
 
-    /// Decodifica una comida desde JSON. Si no hay `mealSlots` usa `suggestedSlot`, si no hay `servings` asume 1 y si no hay `isFavorite` asume `false`.
+    /// Decodifica una comida desde JSON. Si no hay `mealSlots` usa `suggestedSlot`, si no hay `servings` asume 1, si no hay `isFavorite` asume `false`, si no hay `optionGroups` asume ninguno y si no hay `plannedServings` asume 1.
     /// - Parameter decoder: Decodificador del que se leen los datos.
     /// - Throws: Un error si falta algún campo obligatorio.
     public init(from decoder: Decoder) throws {
@@ -295,6 +364,8 @@ public nonisolated struct Meal: Codable, Identifiable, Equatable, Sendable {
         ingredients = try container.decode([Ingredient].self, forKey: .ingredients)
         steps = try container.decode([String].self, forKey: .steps)
         isFavorite = try container.decodeIfPresent(Bool.self, forKey: .isFavorite) ?? false
+        optionGroups = try container.decodeIfPresent([MealOptionGroup].self, forKey: .optionGroups) ?? []
+        plannedServings = try container.decodeIfPresent(Double.self, forKey: .plannedServings) ?? 1
     }
 
     /// Codifica la comida en JSON.
@@ -311,6 +382,8 @@ public nonisolated struct Meal: Codable, Identifiable, Equatable, Sendable {
         try container.encode(ingredients, forKey: .ingredients)
         try container.encode(steps, forKey: .steps)
         try container.encode(isFavorite, forKey: .isFavorite)
+        try container.encode(optionGroups, forKey: .optionGroups)
+        try container.encode(plannedServings, forKey: .plannedServings)
     }
 
     /// Calorías de una ración, redondeadas al entero más cercano.
@@ -324,6 +397,43 @@ public nonisolated struct Meal: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
+extension Meal {
+    /// Opciones realmente elegidas en una lista de elecciones (se ignoran las que ya no existen en la receta).
+    /// - Parameter choices: Elecciones de una comida del plan.
+    /// - Returns: Las opciones elegidas.
+    public func chosenOptions(for choices: [OptionChoice]) -> [MealOption] {
+        choices.compactMap { choice in
+            optionGroups.first { $0.id == choice.groupID }?.options.first { $0.id == choice.optionID }
+        }
+    }
+
+    /// Calorías que aporta una comida planificada: ingredientes fijos más las opciones elegidas, por ración y multiplicadas por las raciones del plan.
+    /// - Parameter planned: Comida planificada.
+    /// - Returns: Las calorías, redondeadas.
+    public func calories(for planned: PlannedMeal) -> Int {
+        let extra = chosenOptions(for: planned.choices).reduce(0) { $0 + $1.calories }
+        return Int((Double(calories + extra) / Double(max(servings, 1)) * planned.servings).rounded())
+    }
+
+    /// Macronutrientes que aporta una comida planificada, con las opciones elegidas y las raciones del plan.
+    /// - Parameter planned: Comida planificada.
+    /// - Returns: Los macronutrientes.
+    public func nutrition(for planned: PlannedMeal) -> Nutrition {
+        let total = chosenOptions(for: planned.choices).reduce(nutrition) { $0 + $1.nutrition }
+        return total.scaled(by: planned.servings / Double(max(servings, 1)))
+    }
+
+    /// Calorías esperadas al colocar la comida en el menú: ingredientes fijos más la media de cada grupo de opciones,
+    /// por las raciones por toma. El generador las usa para elegir comidas antes de decidir las opciones.
+    public var expectedCalories: Int {
+        let average = optionGroups.reduce(0.0) { sum, group in
+            guard !group.options.isEmpty else { return sum }
+            return sum + Double(group.options.reduce(0) { $0 + $1.calories }) / Double(group.options.count)
+        }
+        return Int(((Double(calories) + average) / Double(max(servings, 1)) * plannedServings).rounded())
+    }
+}
+
 /// Comida asignada a una franja de un día concreto del plan semanal.
 ///
 /// `servings` indica cuántas raciones se toman (admite medias raciones) y `isLocked`
@@ -334,6 +444,8 @@ public nonisolated struct PlannedMeal: Codable, Equatable, Identifiable, Sendabl
     public var mealID: UUID
     public var servings: Double
     public var isLocked: Bool
+    /// Opciones elegidas de los ingredientes variables de la comida.
+    public var choices: [OptionChoice]
 
     /// Identificador estable de la franja (día + franja), válido mientras el plan no cambie de semana.
     public var id: String { "\(Int(date.timeIntervalSince1970))-\(slot.rawValue)" }
@@ -345,20 +457,22 @@ public nonisolated struct PlannedMeal: Codable, Equatable, Identifiable, Sendabl
     ///   - mealID: Identificador de la comida asignada.
     ///   - servings: Raciones que se toman.
     ///   - isLocked: Si se conserva al regenerar el menú.
-    public init(date: Date, slot: MealSlot, mealID: UUID, servings: Double = 1, isLocked: Bool = false) {
+    ///   - choices: Opciones elegidas de los ingredientes variables.
+    public init(date: Date, slot: MealSlot, mealID: UUID, servings: Double = 1, isLocked: Bool = false, choices: [OptionChoice] = []) {
         self.date = date
         self.slot = slot
         self.mealID = mealID
         self.servings = servings
         self.isLocked = isLocked
+        self.choices = choices
     }
 
     /// Claves usadas al codificar y decodificar `PlannedMeal` en JSON.
     private enum CodingKeys: String, CodingKey {
-        case date, slot, mealID, servings, isLocked
+        case date, slot, mealID, servings, isLocked, choices
     }
 
-    /// Decodifica una comida planificada. Si faltan `servings` o `isLocked` (datos antiguos) usa 1 ración y sin bloquear.
+    /// Decodifica una comida planificada. Si faltan `servings`, `isLocked` o `choices` (datos antiguos) usa 1 ración, sin bloquear y sin opciones.
     /// - Parameter decoder: Decodificador del que se leen los datos.
     /// - Throws: Un error si falta algún campo obligatorio.
     public init(from decoder: Decoder) throws {
@@ -368,6 +482,7 @@ public nonisolated struct PlannedMeal: Codable, Equatable, Identifiable, Sendabl
         mealID = try container.decode(UUID.self, forKey: .mealID)
         servings = try container.decodeIfPresent(Double.self, forKey: .servings) ?? 1
         isLocked = try container.decodeIfPresent(Bool.self, forKey: .isLocked) ?? false
+        choices = try container.decodeIfPresent([OptionChoice].self, forKey: .choices) ?? []
     }
 
     /// Codifica la comida planificada en JSON (sin la propiedad calculada `id`).
@@ -380,6 +495,7 @@ public nonisolated struct PlannedMeal: Codable, Equatable, Identifiable, Sendabl
         try container.encode(mealID, forKey: .mealID)
         try container.encode(servings, forKey: .servings)
         try container.encode(isLocked, forKey: .isLocked)
+        try container.encode(choices, forKey: .choices)
     }
 }
 

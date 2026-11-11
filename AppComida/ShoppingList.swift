@@ -31,7 +31,8 @@ public struct ShoppingSection: Identifiable, Equatable, Sendable {
 /// Suma los ingredientes de todas las comidas del plan semanal.
 ///
 /// Cada comida planificada aporta `servings` raciones, de modo que las cantidades de la receta se
-/// multiplican por `raciones planificadas / raciones de la receta`. Las cantidades con la misma
+/// multiplican por `raciones planificadas / raciones de la receta`. También se suman los ingredientes de las opciones
+/// elegidas en cada comida del plan. Las cantidades con la misma
 /// unidad se suman (kg → g, l → ml); si el ingrediente del catálogo tiene peso por unidad, los gramos
 /// se convierten a unidades; las cantidades incompatibles se muestran juntas.
 public enum ShoppingListBuilder {
@@ -50,7 +51,8 @@ public enum ShoppingListBuilder {
         for planned in plan.meals {
             guard let meal = mealsByID[planned.mealID] else { continue }
             let factor = planned.servings / Double(max(meal.servings, 1))
-            for ingredient in meal.ingredients {
+            let chosen = meal.chosenOptions(for: planned.choices).map(\.ingredient)
+            for ingredient in meal.ingredients + chosen {
                 let name = ingredient.name.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !name.isEmpty else { continue }
                 let key = name.searchKey

@@ -20,6 +20,8 @@ struct MealEditorView: View {
     @State private var errorMessage: String?
     @State private var isPickingIngredient = false
     @State private var isCreatingIngredient = false
+    @State private var isPickingOption = false
+    @State private var optionTargetGroup: UUID?
     private let isNew: Bool
 
     /// Crea el editor.
@@ -39,6 +41,7 @@ struct MealEditorView: View {
             Form {
                 basicsSection
                 ingredientsSection
+                optionGroupsSections
                 nutritionSection
                 stepsSection
             }
@@ -65,6 +68,19 @@ struct MealEditorView: View {
                     }
                 }
             }
+            .sheet(isPresented: $isPickingOption) {
+                NavigationStack {
+                    IngredientPickerView(selectedID: nil) { selected in
+                        guard let index = draft.optionGroups.firstIndex(where: { $0.id == optionTargetGroup }) else { return }
+                        draft.optionGroups[index].options.append(MealOption(
+                            ingredient: Ingredient(name: selected.name, quantity: "0 g", catalogID: selected.id, grams: 0)
+                        ))
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { isPickingOption = false } }
+                    }
+                }
+            }
             .sheet(isPresented: $isCreatingIngredient) {
                 CatalogIngredientEditorView(ingredient: nil) { newIngredient in
                     try viewModel.saveCatalogIngredient(newIngredient)
@@ -78,7 +94,7 @@ struct MealEditorView: View {
 
     /// Nombre, franjas, favorita, calorías y raciones.
     private var basicsSection: some View {
-        Section("Datos básicos") {
+        Section {
             TextField("Nombre", text: $draft.name)
             VStack(alignment: .leading, spacing: 8) {
                 Text("Tipos de comida")
@@ -100,8 +116,75 @@ struct MealEditorView: View {
                 "Calorías de la receta",
                 value: RecipeCalculator.calories(of: draft.ingredients, catalog: viewModel.catalog).formatted() + " kcal"
             )
-            TextField("Raciones", value: $draft.servings, format: .number)
+            TextField("Raciones de la receta", value: $draft.servings, format: .number)
                 .keyboardType(.numberPad)
+            Stepper(value: $draft.plannedServings, in: 0.5...6, step: 0.5) {
+                LabeledContent(
+                    "Raciones por toma",
+                    value: draft.plannedServings.formatted(.number.precision(.fractionLength(0...1)))
+                )
+            }
+        } header: {
+            Text("Datos básicos")
+        } footer: {
+            Text("\"Raciones de la receta\" es lo que da la receta entera. \"Raciones por toma\" es cuántas se añaden al menú cada vez que sale esta comida.")
+        }
+    }
+
+    /// Un bloque por ingrediente variable (nombre y opciones) y el botón para añadir otro.
+    ///
+    /// Al generar el menú se elige una opción de cada grupo para cada día, repartidas a lo largo de la semana.
+    @ViewBuilder
+    private var optionGroupsSections: some View {
+        ForEach($draft.optionGroups) { $group in
+            Section {
+                TextField("Nombre (por ejemplo, Untado)", text: $group.name)
+                ForEach($group.options) { $option in
+                    VStack(alignment: .leading, spacing: 4) {
+                        NavigationLink {
+                            IngredientPickerView(selectedID: option.ingredient.catalogID) { selected in
+                                option.ingredient.catalogID = selected.id
+                                option.ingredient.name = selected.name
+                            }
+                        } label: {
+                            LabeledContent("Opción", value: option.ingredient.name)
+                        }
+                        TextField("Gramos", value: gramsBinding(for: $option.ingredient), format: .number)
+                            .keyboardType(.decimalPad)
+                        Text("\(optionCalories(option)) kcal").font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                .onDelete { group.options.remove(atOffsets: $0) }
+                Button {
+                    optionTargetGroup = group.id
+                    isPickingOption = true
+                } label: {
+                    Label("Añadir opción", systemImage: "plus")
+                }
+                .disabled(viewModel.catalog.isEmpty)
+            } header: {
+                HStack {
+                    Text("Ingrediente variable")
+                    Spacer()
+                    Button(role: .destructive) {
+                        draft.optionGroups.removeAll { $0.id == group.id }
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                    .accessibilityLabel("Quitar ingrediente variable")
+                }
+            }
+        }
+        Section {
+            Button {
+                draft.optionGroups.append(MealOptionGroup(name: ""))
+            } label: {
+                Label("Añadir ingrediente variable", systemImage: "shuffle")
+            }
+        } header: {
+            if draft.optionGroups.isEmpty { Text("Ingredientes variables (opcional)") }
+        } footer: {
+            Text("Por ejemplo, unas tortitas con un untado a elegir entre chocolate, mermelada, queso de untar o jamón. Al generar el menú se elige una opción distinta cada día y las calorías y la compra cuentan la elegida.")
         }
     }
 
@@ -194,6 +277,18 @@ struct MealEditorView: View {
             return cleaned
         }
         draft.steps = draft.steps.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        draft.optionGroups = draft.optionGroups.map { group in
+            var cleaned = group
+            cleaned.name = group.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            cleaned.options = group.options.map { option in
+                var updated = option
+                if let grams = option.ingredient.grams {
+                    updated.ingredient.quantity = "\(grams.formatted(.number.precision(.fractionLength(0...1)))) g"
+                }
+                return updated
+            }
+            return cleaned
+        }
 
         if let problem = MealValidator.validate(draft, catalog: viewModel.catalog) {
             errorMessage = problem
@@ -206,6 +301,13 @@ struct MealEditorView: View {
         } catch {
             errorMessage = "No se pudo guardar la comida: \(error.localizedDescription)"
         }
+    }
+
+    /// Calorías de una opción con la cantidad indicada, según el catálogo.
+    /// - Parameter option: Opción de un ingrediente variable.
+    /// - Returns: Las calorías, o 0 si todavía no se puede calcular.
+    private func optionCalories(_ option: MealOption) -> Int {
+        RecipeCalculator.values(of: option.ingredient, catalog: viewModel.catalog)?.calories ?? 0
     }
 
     /// Binding de los gramos de un ingrediente que usa 0 cuando no hay valor.

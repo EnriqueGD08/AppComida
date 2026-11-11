@@ -177,7 +177,7 @@ private struct MealRow: View {
                         Image(systemName: "star.fill").font(.caption).foregroundStyle(.yellow)
                     }
                 }
-                Text("\(meal.ingredients.count) ingredientes · \(meal.servings) \(meal.servings == 1 ? "ración" : "raciones")")
+                Text("\(meal.ingredients.count) \(meal.ingredients.count == 1 ? "ingrediente" : "ingredientes") · \(meal.servings) \(meal.servings == 1 ? "ración" : "raciones")\(meal.optionGroups.isEmpty ? "" : " · con variantes")")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -211,6 +211,9 @@ struct MealDetailView: View {
                     hero(meal)
                     macros(meal)
                     ingredients(meal)
+                    ForEach(meal.optionGroups) { group in
+                        variants(group)
+                    }
                     if !meal.steps.isEmpty { steps(meal) }
                 }
                 .padding(.horizontal, 16)
@@ -258,6 +261,11 @@ struct MealDetailView: View {
             Text("Receta completa: \(meal.calories) kcal · \(meal.servings) \(meal.servings == 1 ? "ración" : "raciones")")
                 .font(.footnote)
                 .opacity(0.85)
+            if meal.plannedServings != 1 {
+                Text("Se añade al menú con \(meal.plannedServings.formatted(.number.precision(.fractionLength(0...1)))) raciones")
+                    .font(.footnote)
+                    .opacity(0.85)
+            }
         }
         .foregroundStyle(.white)
         .padding(20)
@@ -280,7 +288,10 @@ struct MealDetailView: View {
                 macro("Carbohidratos", perServing.carbohydrates, .orange)
                 macro("Grasas", perServing.fat, .blue)
             }
-            Text("Valores por ración").font(.caption).foregroundStyle(.secondary).padding(.horizontal, 4)
+            Text(meal.optionGroups.isEmpty ? "Valores por ración" : "Valores por ración, sin contar los ingredientes variables")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
         }
     }
 
@@ -321,6 +332,27 @@ struct MealDetailView: View {
                     }
                     .padding(.vertical, 12)
                     if index < meal.ingredients.count - 1 { Divider() }
+                }
+            }
+            .card(padding: 16)
+        }
+    }
+
+    /// Opciones de un ingrediente variable con su cantidad y sus calorías.
+    /// - Parameter group: Grupo de opciones.
+    /// - Returns: La sección con una fila por opción.
+    private func variants(_ group: MealOptionGroup) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionTitle(title: group.name, systemImage: "shuffle", color: .pink, trailing: "Una al día")
+            VStack(spacing: 0) {
+                ForEach(Array(group.options.enumerated()), id: \.element.id) { index, option in
+                    HStack {
+                        Text(option.ingredient.name)
+                        Spacer()
+                        Text("\(option.ingredient.quantity) · \(option.calories) kcal").foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 12)
+                    if index < group.options.count - 1 { Divider() }
                 }
             }
             .card(padding: 16)

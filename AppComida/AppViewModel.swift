@@ -142,12 +142,11 @@ final class AppViewModel {
         plan?.meals.first { $0.id == id }
     }
 
-    /// Calorías que aporta una comida planificada, teniendo en cuenta las raciones.
+    /// Calorías que aporta una comida planificada, teniendo en cuenta las raciones y las opciones elegidas.
     /// - Parameter planned: Comida planificada.
     /// - Returns: Las calorías, redondeadas.
     func calories(of planned: PlannedMeal) -> Int {
-        guard let meal = meal(withID: planned.mealID) else { return 0 }
-        return Int((Double(meal.caloriesPerServing) * planned.servings).rounded())
+        meal(withID: planned.mealID)?.calories(for: planned) ?? 0
     }
 
     /// Calorías totales de un día del plan.
@@ -163,15 +162,18 @@ final class AppViewModel {
     func nutrition(on day: PlanDay) -> Nutrition {
         day.meals.reduce(Nutrition()) { total, planned in
             guard let meal = meal(withID: planned.mealID) else { return total }
-            return total + meal.nutritionPerServing.scaled(by: planned.servings)
+            return total + meal.nutrition(for: planned)
         }
     }
 
-    /// Número de comidas que usan un ingrediente del catálogo.
+    /// Número de comidas que usan un ingrediente del catálogo, ya sea como ingrediente fijo o como opción de un ingrediente variable.
     /// - Parameter ingredient: Ingrediente del catálogo.
     /// - Returns: Cuántas comidas lo contienen.
     func usageCount(of ingredient: CatalogIngredient) -> Int {
-        meals.filter { meal in meal.ingredients.contains { $0.catalogID == ingredient.id } }.count
+        meals.filter { meal in
+            meal.ingredients.contains { $0.catalogID == ingredient.id }
+                || meal.optionGroups.contains { group in group.options.contains { $0.ingredient.catalogID == ingredient.id } }
+        }.count
     }
 
     // MARK: Objetivo
@@ -303,12 +305,32 @@ final class AppViewModel {
         }
     }
 
-    /// Cambia la comida de una franja del plan.
+    /// Cambia la comida de una franja del plan. Las raciones pasan a ser las "raciones por toma" de la comida nueva y,
+    /// si tiene ingredientes variables, se elige la primera opción de cada grupo (se puede cambiar después).
     /// - Parameters:
     ///   - plannedID: Identificador de la franja (`PlannedMeal.id`).
     ///   - mealID: Comida nueva.
     func replaceMeal(planned plannedID: String, with mealID: UUID) {
-        updatePlanned(plannedID) { $0.mealID = mealID }
+        let newMeal = meal(withID: mealID)
+        updatePlanned(plannedID) { planned in
+            planned.mealID = mealID
+            planned.servings = newMeal?.plannedServings ?? planned.servings
+            planned.choices = (newMeal?.optionGroups ?? []).compactMap { group in
+                group.options.first.map { OptionChoice(groupID: group.id, optionID: $0.id) }
+            }
+        }
+    }
+
+    /// Cambia la opción elegida de un ingrediente variable en una franja del plan.
+    /// - Parameters:
+    ///   - plannedID: Identificador de la franja.
+    ///   - groupID: Grupo de opciones.
+    ///   - optionID: Opción elegida.
+    func setChoice(planned plannedID: String, group groupID: UUID, option optionID: UUID) {
+        updatePlanned(plannedID) { planned in
+            planned.choices.removeAll { $0.groupID == groupID }
+            planned.choices.append(OptionChoice(groupID: groupID, optionID: optionID))
+        }
     }
 
     /// Cambia el número de raciones de una franja del plan.
