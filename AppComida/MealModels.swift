@@ -220,27 +220,76 @@ public nonisolated struct CatalogIngredient: Codable, Identifiable, Equatable, S
     }
 }
 
-/// Una opción de un ingrediente variable (por ejemplo, "mermelada" dentro del grupo "Untado").
+/// Una opción de un ingrediente variable: uno o varios ingredientes que se toman juntos
+/// (por ejemplo "jamón y queso", o solo "chocolate de untar", dentro del grupo "Untado").
 ///
-/// Igual que `Meal.calories`, `calories` y `nutrition` son una copia calculada con el catálogo para la cantidad indicada
-/// (receta completa) y se recalculan cuando cambia el catálogo.
+/// Igual que `Meal.calories`, `calories` y `nutrition` son la suma de todos los ingredientes de la opción, calculada con el
+/// catálogo para las cantidades indicadas (receta completa), y se recalculan cuando cambia el catálogo.
 public nonisolated struct MealOption: Codable, Identifiable, Equatable, Sendable {
     public var id: UUID
-    public var ingredient: Ingredient
+    public var ingredients: [Ingredient]
     public var calories: Int
     public var nutrition: Nutrition
 
-    /// Crea una opción.
+    /// Nombre de la opción: los nombres de sus ingredientes unidos con " + ".
+    public var name: String {
+        ingredients.map(\.name).joined(separator: " + ")
+    }
+
+    /// Crea una opción con varios ingredientes.
+    /// - Parameters:
+    ///   - id: Identificador único.
+    ///   - ingredients: Ingredientes del catálogo con sus cantidades en gramos.
+    ///   - calories: Calorías de todos los ingredientes juntos.
+    ///   - nutrition: Macronutrientes de todos los ingredientes (ceros si el catálogo no los tiene).
+    public init(id: UUID = UUID(), ingredients: [Ingredient], calories: Int = 0, nutrition: Nutrition = Nutrition()) {
+        self.id = id
+        self.ingredients = ingredients
+        self.calories = calories
+        self.nutrition = nutrition
+    }
+
+    /// Crea una opción de un solo ingrediente.
     /// - Parameters:
     ///   - id: Identificador único.
     ///   - ingredient: Ingrediente del catálogo y cantidad en gramos.
     ///   - calories: Calorías de la cantidad indicada.
-    ///   - nutrition: Macronutrientes de la cantidad indicada (ceros si el catálogo no los tiene).
+    ///   - nutrition: Macronutrientes de la cantidad indicada.
     public init(id: UUID = UUID(), ingredient: Ingredient, calories: Int = 0, nutrition: Nutrition = Nutrition()) {
-        self.id = id
-        self.ingredient = ingredient
-        self.calories = calories
-        self.nutrition = nutrition
+        self.init(id: id, ingredients: [ingredient], calories: calories, nutrition: nutrition)
+    }
+
+    /// Claves usadas al codificar y decodificar `MealOption` en JSON (`ingredient` es el formato anterior, de un solo ingrediente).
+    private enum CodingKeys: String, CodingKey {
+        case id, ingredients, ingredient, calories, nutrition
+    }
+
+    /// Decodifica una opción. Lee `ingredients` y, si no está, el campo anterior `ingredient` (un solo ingrediente).
+    /// - Parameter decoder: Decodificador del que se leen los datos.
+    /// - Throws: Un error si falta algún campo obligatorio.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        if let list = try container.decodeIfPresent([Ingredient].self, forKey: .ingredients) {
+            ingredients = list
+        } else if let single = try container.decodeIfPresent(Ingredient.self, forKey: .ingredient) {
+            ingredients = [single]
+        } else {
+            ingredients = []
+        }
+        calories = try container.decode(Int.self, forKey: .calories)
+        nutrition = try container.decode(Nutrition.self, forKey: .nutrition)
+    }
+
+    /// Codifica la opción en JSON.
+    /// - Parameter encoder: Codificador donde se escriben los datos.
+    /// - Throws: Un error si falla la codificación.
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(ingredients, forKey: .ingredients)
+        try container.encode(calories, forKey: .calories)
+        try container.encode(nutrition, forKey: .nutrition)
     }
 }
 

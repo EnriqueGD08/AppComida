@@ -95,7 +95,7 @@ public enum BackupService {
                 var updatedGroup = group
                 updatedGroup.options = group.options.map { option in
                     var updatedOption = option
-                    updatedOption.ingredient = remapped(option.ingredient)
+                    updatedOption.ingredients = option.ingredients.map(remapped)
                     return updatedOption
                 }
                 return updatedGroup

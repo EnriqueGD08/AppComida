@@ -11,6 +11,12 @@
 
 import SwiftUI
 
+/// Ingrediente variable y opción a los que se está añadiendo un ingrediente.
+private struct OptionTarget {
+    let groupID: UUID
+    let optionID: UUID
+}
+
 /// Formulario para crear o editar una comida.
 struct MealEditorView: View {
     @Environment(AppViewModel.self) private var viewModel
@@ -21,7 +27,7 @@ struct MealEditorView: View {
     @State private var isPickingIngredient = false
     @State private var isCreatingIngredient = false
     @State private var isPickingOption = false
-    @State private var optionTargetGroup: UUID?
+    @State private var optionTarget: OptionTarget?
     private let isNew: Bool
 
     /// Crea el editor.
@@ -71,10 +77,13 @@ struct MealEditorView: View {
             .sheet(isPresented: $isPickingOption) {
                 NavigationStack {
                     IngredientPickerView(selectedID: nil) { selected in
-                        guard let index = draft.optionGroups.firstIndex(where: { $0.id == optionTargetGroup }) else { return }
-                        draft.optionGroups[index].options.append(MealOption(
-                            ingredient: Ingredient(name: selected.name, quantity: "0 g", catalogID: selected.id, grams: 0)
-                        ))
+                        guard let target = optionTarget,
+                              let groupIndex = draft.optionGroups.firstIndex(where: { $0.id == target.groupID }),
+                              let optionIndex = draft.optionGroups[groupIndex].options.firstIndex(where: { $0.id == target.optionID })
+                        else { return }
+                        draft.optionGroups[groupIndex].options[optionIndex].ingredients.append(
+                            Ingredient(name: selected.name, quantity: "0 g", catalogID: selected.id, grams: 0)
+                        )
                     }
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { isPickingOption = false } }
@@ -131,37 +140,20 @@ struct MealEditorView: View {
         }
     }
 
-    /// Un bloque por ingrediente variable (nombre y opciones) y el botón para añadir otro.
+    /// Un bloque por ingrediente variable y, dentro de cada uno, un bloque por opción con sus ingredientes.
     ///
-    /// Al generar el menú se elige una opción de cada grupo para cada día, repartidas a lo largo de la semana.
+    /// Cada opción puede ser una combinación (por ejemplo "jamón + queso") o un solo ingrediente. Al generar el menú se elige
+    /// una opción de cada grupo para cada día, repartidas a lo largo de la semana.
     @ViewBuilder
     private var optionGroupsSections: some View {
         ForEach($draft.optionGroups) { $group in
             Section {
                 TextField("Nombre (por ejemplo, Untado)", text: $group.name)
-                ForEach($group.options) { $option in
-                    VStack(alignment: .leading, spacing: 4) {
-                        NavigationLink {
-                            IngredientPickerView(selectedID: option.ingredient.catalogID) { selected in
-                                option.ingredient.catalogID = selected.id
-                                option.ingredient.name = selected.name
-                            }
-                        } label: {
-                            LabeledContent("Opción", value: option.ingredient.name)
-                        }
-                        TextField("Gramos", value: gramsBinding(for: $option.ingredient), format: .number)
-                            .keyboardType(.decimalPad)
-                        Text("\(optionCalories(option)) kcal").font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-                .onDelete { group.options.remove(atOffsets: $0) }
                 Button {
-                    optionTargetGroup = group.id
-                    isPickingOption = true
+                    group.options.append(MealOption(ingredients: []))
                 } label: {
                     Label("Añadir opción", systemImage: "plus")
                 }
-                .disabled(viewModel.catalog.isEmpty)
             } header: {
                 HStack {
                     Text("Ingrediente variable")
@@ -174,6 +166,9 @@ struct MealEditorView: View {
                     .accessibilityLabel("Quitar ingrediente variable")
                 }
             }
+            ForEach($group.options) { $option in
+                optionSection($option, of: $group)
+            }
         }
         Section {
             Button {
@@ -184,7 +179,54 @@ struct MealEditorView: View {
         } header: {
             if draft.optionGroups.isEmpty { Text("Ingredientes variables (opcional)") }
         } footer: {
-            Text("Por ejemplo, unas tortitas con un untado a elegir entre chocolate, mermelada, queso de untar o jamón. Al generar el menú se elige una opción distinta cada día y las calorías y la compra cuentan la elegida.")
+            Text("Por ejemplo, unas tortitas con un untado a elegir. Cada opción puede llevar uno o varios ingredientes: una puede ser jamón y queso juntos y otra solo chocolate. Al generar el menú se elige una opción distinta cada día y las calorías y la compra cuentan la elegida.")
+        }
+    }
+
+    /// Bloque de una opción: sus ingredientes con gramos, el botón para añadir otro y el total de calorías.
+    /// - Parameters:
+    ///   - option: Opción a editar.
+    ///   - group: Grupo al que pertenece.
+    /// - Returns: La sección de la opción.
+    private func optionSection(_ option: Binding<MealOption>, of group: Binding<MealOptionGroup>) -> some View {
+        let number = (group.wrappedValue.options.firstIndex { $0.id == option.wrappedValue.id } ?? 0) + 1
+        let groupName = group.wrappedValue.name.isEmpty ? "Variable" : group.wrappedValue.name
+        return Section {
+            ForEach(option.ingredients) { $ingredient in
+                VStack(alignment: .leading, spacing: 4) {
+                    NavigationLink {
+                        IngredientPickerView(selectedID: ingredient.catalogID) { selected in
+                            ingredient.catalogID = selected.id
+                            ingredient.name = selected.name
+                        }
+                    } label: {
+                        LabeledContent("Ingrediente", value: ingredient.name)
+                    }
+                    TextField("Gramos", value: gramsBinding(for: $ingredient), format: .number)
+                        .keyboardType(.decimalPad)
+                }
+            }
+            .onDelete { option.wrappedValue.ingredients.remove(atOffsets: $0) }
+            Button {
+                optionTarget = OptionTarget(groupID: group.wrappedValue.id, optionID: option.wrappedValue.id)
+                isPickingOption = true
+            } label: {
+                Label("Añadir ingrediente a esta opción", systemImage: "plus")
+            }
+            .disabled(viewModel.catalog.isEmpty)
+        } header: {
+            HStack {
+                Text("\(groupName) · opción \(number)")
+                Spacer()
+                Button(role: .destructive) {
+                    group.wrappedValue.options.removeAll { $0.id == option.wrappedValue.id }
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .accessibilityLabel("Quitar opción")
+            }
+        } footer: {
+            Text("\(optionCalories(option.wrappedValue)) kcal en total")
         }
     }
 
@@ -282,8 +324,12 @@ struct MealEditorView: View {
             cleaned.name = group.name.trimmingCharacters(in: .whitespacesAndNewlines)
             cleaned.options = group.options.map { option in
                 var updated = option
-                if let grams = option.ingredient.grams {
-                    updated.ingredient.quantity = "\(grams.formatted(.number.precision(.fractionLength(0...1)))) g"
+                updated.ingredients = option.ingredients.map { ingredient in
+                    var cleanedIngredient = ingredient
+                    if let grams = ingredient.grams {
+                        cleanedIngredient.quantity = "\(grams.formatted(.number.precision(.fractionLength(0...1)))) g"
+                    }
+                    return cleanedIngredient
                 }
                 return updated
             }
@@ -303,11 +349,11 @@ struct MealEditorView: View {
         }
     }
 
-    /// Calorías de una opción con la cantidad indicada, según el catálogo.
+    /// Calorías de una opción (todos sus ingredientes juntos) con las cantidades indicadas, según el catálogo.
     /// - Parameter option: Opción de un ingrediente variable.
     /// - Returns: Las calorías, o 0 si todavía no se puede calcular.
     private func optionCalories(_ option: MealOption) -> Int {
-        RecipeCalculator.values(of: option.ingredient, catalog: viewModel.catalog)?.calories ?? 0
+        RecipeCalculator.values(of: option.ingredients, catalog: viewModel.catalog)?.calories ?? 0
     }
 
     /// Binding de los gramos de un ingrediente que usa 0 cuando no hay valor.

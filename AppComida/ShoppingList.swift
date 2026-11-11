@@ -51,7 +51,7 @@ public enum ShoppingListBuilder {
         for planned in plan.meals {
             guard let meal = mealsByID[planned.mealID] else { continue }
             let factor = planned.servings / Double(max(meal.servings, 1))
-            let chosen = meal.chosenOptions(for: planned.choices).map(\.ingredient)
+            let chosen = meal.chosenOptions(for: planned.choices).flatMap(\.ingredients)
             for ingredient in meal.ingredients + chosen {
                 let name = ingredient.name.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !name.isEmpty else { continue }

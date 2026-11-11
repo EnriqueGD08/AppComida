@@ -172,7 +172,7 @@ final class AppViewModel {
     func usageCount(of ingredient: CatalogIngredient) -> Int {
         meals.filter { meal in
             meal.ingredients.contains { $0.catalogID == ingredient.id }
-                || meal.optionGroups.contains { group in group.options.contains { $0.ingredient.catalogID == ingredient.id } }
+                || meal.optionGroups.contains { group in group.options.contains { option in option.ingredients.contains { $0.catalogID == ingredient.id } } }
         }.count
     }
 

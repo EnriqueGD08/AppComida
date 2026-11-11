@@ -48,17 +48,23 @@ public enum RecipeCalculator {
         return total
     }
 
-    /// Calorías y macronutrientes de un único ingrediente (por ejemplo, una opción de un ingrediente variable).
+    /// Calorías y macronutrientes de un conjunto de ingredientes (por ejemplo, una opción de un ingrediente variable).
     /// - Parameters:
-    ///   - ingredient: Ingrediente con su cantidad en gramos.
+    ///   - ingredients: Ingredientes con su cantidad en gramos.
     ///   - catalog: Catálogo de ingredientes.
-    /// - Returns: Calorías y macronutrientes (ceros si el catálogo no los tiene), o `nil` si el ingrediente no se puede resolver.
-    public static func values(of ingredient: Ingredient, catalog: [CatalogIngredient]) -> (calories: Int, nutrition: Nutrition)? {
-        guard let grams = ingredient.grams,
-              let id = ingredient.catalogID,
-              let item = index(catalog)[id] else { return nil }
-        let nutrition = item.macrosPer100g?.scaled(by: grams / 100) ?? Nutrition()
-        return (Int((item.caloriesPerGram * grams).rounded()), nutrition)
+    /// - Returns: La suma de calorías y de macronutrientes (los ingredientes sin macronutrientes en el catálogo suman cero),
+    ///   o `nil` si no hay ingredientes o alguno no se puede resolver.
+    public static func values(of ingredients: [Ingredient], catalog: [CatalogIngredient]) -> (calories: Int, nutrition: Nutrition)? {
+        guard !ingredients.isEmpty else { return nil }
+        let byID = index(catalog)
+        var calories = 0.0
+        var nutrition = Nutrition()
+        for ingredient in ingredients {
+            guard let grams = ingredient.grams, let id = ingredient.catalogID, let item = byID[id] else { return nil }
+            calories += item.caloriesPerGram * grams
+            nutrition = nutrition + (item.macrosPer100g?.scaled(by: grams / 100) ?? Nutrition())
+        }
+        return (Int(calories.rounded()), nutrition)
     }
 
     /// Recalcula las calorías (y los macronutrientes, si son calculables) de una comida con el catálogo actual,
@@ -74,7 +80,7 @@ public enum RecipeCalculator {
         updated.optionGroups = meal.optionGroups.map { group in
             var recalculatedGroup = group
             recalculatedGroup.options = group.options.map { option in
-                guard let values = values(of: option.ingredient, catalog: catalog) else { return option }
+                guard let values = values(of: option.ingredients, catalog: catalog) else { return option }
                 var recalculatedOption = option
                 recalculatedOption.calories = values.calories
                 recalculatedOption.nutrition = values.nutrition

@@ -49,12 +49,17 @@ public enum MealValidator {
             if group.options.count < 2 {
                 return "El ingrediente variable \"\(group.name)\" necesita al menos dos opciones."
             }
+            if group.options.contains(where: { $0.ingredients.isEmpty }) {
+                return "Cada opción de \"\(group.name)\" necesita al menos un ingrediente."
+            }
             let optionsAreValid = group.options.allSatisfy { option in
-                guard let id = option.ingredient.catalogID, known.contains(id), let grams = option.ingredient.grams else { return false }
-                return grams > 0
+                option.ingredients.allSatisfy { ingredient in
+                    guard let id = ingredient.catalogID, known.contains(id), let grams = ingredient.grams else { return false }
+                    return grams > 0
+                }
             }
             if !optionsAreValid {
-                return "Cada opción de \"\(group.name)\" necesita un ingrediente registrado y gramos mayores que cero."
+                return "Cada ingrediente de las opciones de \"\(group.name)\" debe ser un ingrediente registrado con gramos mayores que cero."
             }
         }
         if meal.nutrition.protein < 0 || meal.nutrition.carbohydrates < 0 || meal.nutrition.fat < 0 {

@@ -154,7 +154,7 @@ struct PlanTabView: View {
                                 .multilineTextAlignment(.leading)
                             let chosen = meal.chosenOptions(for: planned.choices)
                             if !chosen.isEmpty {
-                                Text(chosen.map(\.ingredient.name).joined(separator: " · "))
+                                Text(chosen.map(\.name).joined(separator: " · "))
                                     .font(.caption)
                                     .foregroundStyle(Theme.accent)
                                     .multilineTextAlignment(.leading)
@@ -258,7 +258,7 @@ struct PlannedMealEditorView: View {
                                 }
                             )) {
                                 ForEach(group.options) { option in
-                                    Text("\(option.ingredient.name) · \(option.calories) kcal").tag(UUID?.some(option.id))
+                                    Text("\(option.name) · \(option.calories) kcal").tag(UUID?.some(option.id))
                                 }
                             }
                         } header: {

@@ -253,7 +253,7 @@ struct OptionsTests {
         let incoming = AppBackup(meals: [incomingMeal], ingredients: [theirJam], plan: nil, dailyCalorieGoal: 1_500)
         let merged = BackupService.merge(current: current, incoming: incoming)
         let options = merged.meals.first?.optionGroups.first?.options
-        #expect(options?.first?.ingredient.catalogID == myJam.id)
+        #expect(options?.first?.ingredients.first?.catalogID == myJam.id)
     }
 }
 
@@ -324,5 +324,111 @@ struct OptionsViewModelTests {
         model.deleteCatalogIngredient(jam)
         #expect(model.catalog.contains { $0.id == jam.id })
         #expect(model.message?.contains("1 comida") == true)
+    }
+}
+
+@Suite("Opciones con varios ingredientes")
+struct OptionCombinationTests {
+    private let ham = CatalogIngredient(name: "Jamón", calories: 100, protein: 20, carbohydrates: 1, fat: 2)
+    private let cheese = CatalogIngredient(name: "Queso", calories: 300, protein: 25, carbohydrates: 1, fat: 24)
+    private let chocolate = CatalogIngredient(name: "Chocolate", calories: 540, protein: 6, carbohydrates: 55, fat: 32)
+
+    private func ingredient(_ item: CatalogIngredient, _ grams: Double) -> Ingredient {
+        Ingredient(name: item.name, quantity: "\(grams) g", catalogID: item.id, grams: grams)
+    }
+
+    /// Grupo "Untado" con dos opciones: jamón y queso juntos, o solo chocolate.
+    private func spread() -> MealOptionGroup {
+        MealOptionGroup(name: "Untado", options: [
+            MealOption(ingredients: [ingredient(ham, 30), ingredient(cheese, 20)]),
+            MealOption(ingredients: [ingredient(chocolate, 20)])
+        ])
+    }
+
+    @Test("El nombre de la opción une sus ingredientes")
+    func nameJoinsIngredients() {
+        let group = spread()
+        #expect(group.options[0].name == "Jamón + Queso")
+        #expect(group.options[1].name == "Chocolate")
+    }
+
+    @Test("Recalcular suma todos los ingredientes de la opción")
+    func recalculationSumsIngredients() {
+        let meal = Meal(name: "Tortitas", suggestedSlot: .breakfast, calories: 1, optionGroups: [spread()])
+        let updated = RecipeCalculator.recalculated(meal, catalog: [ham, cheese, chocolate])
+        let options = updated.optionGroups[0].options
+        #expect(options[0].calories == 30 + 60)
+        #expect(options[0].nutrition.protein == 6 + 5)
+        #expect(options[1].calories == 108)
+    }
+
+    @Test("Si algún ingrediente de la opción no se puede resolver, no se toca")
+    func unresolvableOptionIsKept() {
+        let unknown = Ingredient(name: "Desconocido", quantity: "", catalogID: UUID(), grams: 10)
+        let option = MealOption(ingredients: [ingredient(ham, 30), unknown], calories: 77)
+        let meal = Meal(name: "A", suggestedSlot: .breakfast, calories: 1, optionGroups: [MealOptionGroup(name: "G", options: [option, option])])
+        let updated = RecipeCalculator.recalculated(meal, catalog: [ham])
+        #expect(updated.optionGroups[0].options[0].calories == 77)
+    }
+
+    @Test("La compra suma todos los ingredientes de la combinación elegida")
+    func shoppingIncludesWholeCombination() {
+        let group = spread()
+        let meal = Meal(name: "Tortitas", suggestedSlot: .breakfast, calories: 1, optionGroups: [group])
+        let plan = WeeklyPlan(weekStart: Fixtures.monday, meals: [
+            PlannedMeal(date: Fixtures.monday, slot: .breakfast, mealID: meal.id, choices: [OptionChoice(groupID: group.id, optionID: group.options[0].id)])
+        ])
+        let list = ShoppingListBuilder.build(plan: plan, meals: [meal])
+        #expect(list.first { $0.name == "Jamón" }?.quantityText == "30 g")
+        #expect(list.first { $0.name == "Queso" }?.quantityText == "20 g")
+        #expect(list.contains { $0.name == "Chocolate" } == false)
+    }
+
+    @Test("Cada opción necesita al menos un ingrediente válido")
+    func validatesCombinationIngredients() {
+        let catalog = [ham, cheese, chocolate]
+        func meal(_ options: [MealOption]) -> Meal {
+            Meal(
+                name: "A", suggestedSlot: .breakfast, calories: 1,
+                ingredients: [Ingredient(name: "Jamón", quantity: "", catalogID: ham.id, grams: 10)],
+                optionGroups: [MealOptionGroup(name: "Untado", options: options)]
+            )
+        }
+        let valid = [MealOption(ingredients: [ingredient(ham, 30), ingredient(cheese, 20)]), MealOption(ingredients: [ingredient(chocolate, 20)])]
+        #expect(MealValidator.validate(meal(valid), catalog: catalog) == nil)
+        #expect(MealValidator.validate(meal([valid[0], MealOption(ingredients: [])]), catalog: catalog) != nil)
+        #expect(MealValidator.validate(meal([valid[0], MealOption(ingredients: [ingredient(chocolate, 0)])]), catalog: catalog) != nil)
+        #expect(MealValidator.validate(meal([valid[0], MealOption(ingredients: [ingredient(ham, 5), Ingredient(name: "X", quantity: "", catalogID: UUID(), grams: 5)])]), catalog: catalog) != nil)
+    }
+
+    @Test("Lee las opciones guardadas con el formato anterior (un solo ingrediente)")
+    func decodesLegacySingleIngredient() throws {
+        let legacy = """
+        {"id":"11111111-1111-1111-1111-111111111111",
+         "ingredient":{"id":"22222222-2222-2222-2222-222222222222","name":"Chocolate","quantity":"20 g","grams":20},
+         "calories":108,"nutrition":{"protein":1,"carbohydrates":2,"fat":3}}
+        """
+        let option = try JSONDecoder().decode(MealOption.self, from: Data(legacy.utf8))
+        #expect(option.ingredients.map(\.name) == ["Chocolate"])
+        #expect(option.calories == 108)
+        // Al volver a guardar usa el formato nuevo.
+        let saved = try JSONEncoder().encode(option)
+        #expect(try JSONDecoder().decode(MealOption.self, from: saved) == option)
+        #expect(String(decoding: saved, as: UTF8.self).contains("\"ingredients\""))
+    }
+
+    @MainActor
+    @Test("Un ingrediente usado dentro de una combinación cuenta como usado")
+    func ingredientInsideCombinationCountsAsUsed() throws {
+        let store = InMemoryStore()
+        store.meals = [Meal(name: "Tortitas", suggestedSlot: .breakfast, calories: 100, optionGroups: [spread()])]
+        let model = AppViewModel(
+            store: store, generator: MenuGenerator(calendar: Fixtures.calendar, seed: 1), reminders: FakeReminders(),
+            defaults: UserDefaults(suiteName: "appcomida-tests-\(UUID().uuidString)")!, calendar: Fixtures.calendar, now: { Fixtures.monday }
+        )
+        try model.saveCatalogIngredient(cheese)
+        #expect(model.usageCount(of: cheese) == 1)
+        model.deleteCatalogIngredient(cheese)
+        #expect(model.catalog.contains { $0.id == cheese.id })
     }
 }

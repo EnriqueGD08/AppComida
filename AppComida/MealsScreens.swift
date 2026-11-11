@@ -346,10 +346,12 @@ struct MealDetailView: View {
             SectionTitle(title: group.name, systemImage: "shuffle", color: .pink, trailing: "Una al día")
             VStack(spacing: 0) {
                 ForEach(Array(group.options.enumerated()), id: \.element.id) { index, option in
-                    HStack {
-                        Text(option.ingredient.name)
-                        Spacer()
-                        Text("\(option.ingredient.quantity) · \(option.calories) kcal").foregroundStyle(.secondary)
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(option.name)
+                        Spacer(minLength: 12)
+                        Text("\(option.ingredients.map(\.quantity).joined(separator: " + ")) · \(option.calories) kcal")
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.trailing)
                     }
                     .padding(.vertical, 12)
                     if index < group.options.count - 1 { Divider() }

@@ -13,7 +13,7 @@
 
 - **Genera el menú semanal** (desayuno, almuerzo, merienda y cena) cerca del objetivo calórico diario. Cada generación es distinta y evita repetir comidas mientras haya alternativas.
 - **Raciones por toma:** cada receta indica cuántas raciones se ponen en el menú cada vez que sale; el generador las usa en las calorías del día y en la compra.
-- **Ingredientes variables:** una receta puede tener grupos de opciones (por ejemplo, tortitas con *chocolate, mermelada, queso de untar o jamón*). Al generar el menú se elige una opción cada día, repartidas a lo largo de la semana, y las calorías, los macronutrientes y la lista de la compra cuentan la opción elegida.
+- **Ingredientes variables:** una receta puede tener grupos de opciones (por ejemplo, tortitas con un untado a elegir). Cada opción puede ser un ingrediente o una combinación (*jamón + queso*, o solo *chocolate*). Al generar el menú se elige una opción cada día, repartidas a lo largo de la semana, y las calorías, los macronutrientes y la lista de la compra cuentan la opción elegida.
 - **Lo puedes ajustar a mano:** cambiar cualquier comida, comer media ración o dos, y **bloquear** las que te gustan para que se conserven al regenerar.
 - **Lista de la compra automática:** suma los ingredientes de toda la semana según las raciones, los muestra en unidades ("2 aguacates") o en kg/g, y los agrupa por secciones del supermercado. Permite añadir productos a mano, marcar "ya lo tengo en casa" y compartirla como texto.
 - **Catálogo de ingredientes** con calorías, macronutrientes y peso por unidad. Las calorías y los macronutrientes de cada receta se calculan solos.
@@ -32,7 +32,7 @@ El proyecto está pensado para ser fácil de mantener y de probar, siguiendo los
 - **Datos compatibles hacia atrás.** Los modelos `Codable` leen copias guardadas por versiones anteriores y un archivo dañado se aparta (`.corrupt`) en vez de sobrescribirse.
 - **Algoritmo del menú.** Para cada día evalúa las combinaciones de una comida por franja y elige la que queda dentro de la tolerancia con menos repeticiones, desempatando al azar. Admite una semilla para resultados reproducibles en pruebas.
 - **Observación moderna.** Estado con `@Observable` y navegación aislada en un `Navigator`.
-- **71 pruebas automáticas** con Swift Testing sobre los modelos, el generador, la compra, las recetas, las copias de seguridad, la validación y los casos de uso del `ViewModel`.
+- **78 pruebas automáticas** con Swift Testing sobre los modelos, el generador, la compra, las recetas, las copias de seguridad, la validación y los casos de uso del `ViewModel`.
 
 ### Estructura
 
